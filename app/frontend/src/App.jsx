@@ -1,24 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import fetchMessage from './components/sample';
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
 
-const App = () => {
-    const [message, setMessage] = useState("");  // To store the fetched message
+function App() {
+  const [count, setCount] = useState(0)
 
-    useEffect(() => {
-        const getMessage = async () => {
-            const fetchedMessage = await fetchMessage();  // Fetch the message
-            setMessage(fetchedMessage);  // Set the message state with the fetched data
-        };
+  return (
+    <>
+      <div>
+        <a href="https://vite.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.jsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+    </>
+  )
+}
 
-        getMessage();
-    }, []);  // Empty dependency array means this runs once when the component mounts
-
-    return (
-        <div>
-            <h1>FastAPI says:</h1>
-            <p>{message}</p>  {/* Display the fetched message */}
-        </div>
-    );
-};
-
-export default App;
+export default App
