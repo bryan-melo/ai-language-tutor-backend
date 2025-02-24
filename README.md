@@ -1,123 +1,88 @@
-# AI-Powered Language Tutor using a Jetson Orin Nano Super
+# Backend Environment Setup and Testing
 
-## Table of Contents 
-- [Problem Statement](#problem-statement)
-- [Solution](#solution)
-- [Hardware Requirements](#hardware-requirements)
-- [Software Stack](#software-stack)
-- [System Architecture](#system-architecture)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [API Endpoints](#api-endpoints)
-- [Contributing](#contributing)
+The backend is designed to run independently, allowing for testing without relying on the frontend or the Jetson Orin Nano Super. This setup ensures that the backend can be tested in isolation, without needing the frontend or Jetson device to be active.
 
-## Problem Statement
+Follow the steps below to create and activate the environment. If the environment has already been created, skip to the activation steps.
 
-Learning a new language can be challenging, especially when the main methods of practice involve reading or typing on a device. Without real-time feedback of pronunciation, it’s easy to simply memorize phrases or go through the motions without truly knowing if incorrect habits are being developed. This approach can be discouraging when they attempt to use what they have learned in real-world conversations, only to have their mistakes pointed out by others.
+---
 
-## Solution
+## Step 1: Create the Virtual Environment
+```bash
+python -m venv venv
+```
 
-Our project aims to create a simple yet interactive approach to language learning. Imagine a system where users can practice speaking a new language using a device and receive immediate feedback. This device will automatically update their progress in a web application, enabling them to track development and share achievements with others. By focusing on speaking rather than passive learning, users can benefit from an effective and engaging approach to language learning
+---
 
-## Hardware Requirements
+## Step 2: Activate the Virtual Environment
 
-- **Jetson Orin Nano Super Developer Kit**
-- **Storage**: 1 TB SSD NVMe 4.0
-- **Microphone**: ReSpeaker Mic Array v2.0
-- **Speaker**: Mono Enclosed Speaker 4R 5W
+### macOS/Linux
+```bash
+source venv/bin/activate
+```
 
-## Software Stack
+### Windows (PowerShell)
+```powershell
+.\venv\Scripts\activate
+```
 
-### Jetson Orin Nano Super
-- **Operating System**: Jetson Linux 36.4.3
-- **Speech Processing Libraries**: NVIDIA Riva
-- **Fine-tuning Pre-trained Models**: NVIDIA TAO Toolkit
-- **API Communication**: Python `httpx` library for asynchronous API calls
+---
 
-### Web Application
+## Step 3: Install Dependencies
+Ensure all required dependencies are installed within the virtual environment:
+```bash
+pip install -r requirements.txt
+```
 
-#### Frontend
-- **Programming Languages**: JavaScript
-- **Markup & Styling**: CSS3, HTML5
-- **Data Visualization**: Google Charts JS
+---
 
-#### Backend
-- **Programming Languages**: Python
-- **Framework**: FastAPI
-- **Database**: SQLite3
+## Step 4: Run the Backend Server
+Before running the backend, ensure your virtual environment is activated.
 
-### AI Models for Error Feedback
-- Qwen 2.5 (3B model)
-- LLaMA 3.2 (3B model)
-- Gemma (2B model)
+### Activate the Virtual Environment
+- **macOS/Linux:**
+  ```bash
+  source venv/bin/activate
+  ```
+- **Windows (PowerShell):**
+  ```powershell
+  .\venv\Scripts\activate
+  ```
 
-## System Architecture
+### Start the FastAPI Server
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
 
-The development of this project will leverage software optimized for Jetson Orin Nano, pre-trained language models that may be fine-tuned, and frontend and backend components from a previous project. The system consists of several key components that interact to create an engaging AI language-learning tutor.
+### Explanation:
+- `main:app` → Refers to the app instance in `main.py`
+- `--host 0.0.0.0` → Makes the backend accessible on your local network
+- `--port 8000` → Runs the server on port 8000 (you can change this if needed)
+- `--reload` → Enables automatic reloading when code changes (useful during development)
 
-### Jetson Orin Nano Super
+---
 
-The Jetson Orin Nano Super paired with I/O devices such as a microphone and speaker, will serve as the interface for user interaction. It will process voice input and generate speech output using pretrained models and generative AI.
+## Step 5: Use FastAPI's Automatic Documentation for API Endpoints
+FastAPI automatically generates a user-friendly and interactive interface for developers to explore and test API endpoints.
 
-### Full-Stack Web Application
+- **Swagger UI**:
+```bash
+http://localhost:8000/docs
+```
+- **ReDoc**:
+```bash
+http://localhost:8000/redoc
+```
 
-The full-stack web application will serve as an interactive platform, enabling users to track their progress using Google Charts JS for dynamic data visualization. Users will be able to create accounts by using general information (e.g., name, email, password), and select a language to learn.
+Ensure to adjust `localhost:8000` if your backend is hosted on a different port.
 
-Additionally, users can share their progress through a timeline feature, where they can create posts, interact with others via comments and likes. The language courses will be stored in a database and made accessible through API endpoints in JSON format.
+---
 
-Additional features, such as language practice through typing exercises and quizzes on the platform, are in consideration and will be implemented if time permits.
+## Step 6: Stop the Server and Deactivate the Environment
 
-### API Communication Between Jetson Orin Nano Super and Web Application
+### Stop the Uvicorn Server
+Press `CTRL + C` in the terminal where Uvicorn is running.
 
-The Jetson Orin Nano Super will interact with the web application through API calls. Using a course/section identification number, it will retrieve the requested content for the section the user is currently on. This interaction will be facilitated through voice commands, which will be processed to call the appropriate function.
-
-### Backend Data Retrieval and Storage
-
-When an API call for a course is received, the backend will utilize CRUD operations to query a local database and retrieve the requested data. The retrieved content will then be formatted as JSON and sent to the Jetson Orin Nano Super, which will process the data for speech output to the user.
-
-### Speech Processing with NVIDIA Riva
-
-The system will leverage NVIDIA’s Riva software for speech-to-text (STT) and text-to-speech (TTS) processing. Additionally, we will use Riva’s pre-trained models for speech recognition. If time permits, these models will be fine-tuned
-using NVIDIA’s TAO Toolkik (Train, Adapt, Optimize) to enhance speech recognition for users with heavier accents. This would be specific to one language, as time would not permit to train for multiple languages.
-
-### Generative AI for Error Feedback
-
-After the speech-to-text process is completed, the generated string will be compared to the expected string from the course. If a mistake is detected, generative AI will provide feedback by identifying mispronounced words and offer corrective guidance. A prompt will be generated using the mispronounced word(s), instructing the AI to assist with pronunciation while also providing definitions and examples sentences demonstrating their usage in different contexts. The lesson will continue only after the correct input is detected. The exact implementation of generative AI integration is still under consideration and will require further research as the project progresses.
-
-## Features
-
-## Installation
-
-## Usage
-
-## API Endpoints
-
-## Contributing
-1. Fork the repository
-2. Clone your forked repository to your local machine:
-   ```bash
-      git clone https://github.com/your-username/AI-Language-Tutor.git
-   ```
-   - Replace **your-username** with GitHub username
-3. Navigate into the project directory:
-   ```bash
-      cd AI-Language-Tutor
-   ```
-4. Sync your forked repository with the main repository:
-   ```bsh
-      git remote add upstream https://github.com/bryan-melo/AI-Language-Tutor.git
-   ```
-5. Create a new branch for your changes:
-   ```bash
-     git checkout -b branch-name
-   ```
-6. Commit your changes:
-   ```bash
-     git commit -m "Message describing changes"
-   ```
-7. Push changes to your branch:
-   ```bash
-     git push origin branch-name 
-   ```
-8. Open a Pull Request (PR)
+### Deactivate the Virtual Environment
+```bash
+deactivate
+```
