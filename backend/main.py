@@ -24,7 +24,7 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    return {"message": "Hello, Wordl!"}
+    return {"message": "Hello, Wordlddd!"}
 
 
 if __name__ == "__main__":
