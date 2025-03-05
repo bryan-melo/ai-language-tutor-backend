@@ -1,9 +1,12 @@
 import uvicorn
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
+from sqlalchemy.orm import Session
+from app.database.connection import SessionLocal
+from app.models import *
 
 app = FastAPI()
 
@@ -21,10 +24,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Dependency to get DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 
 @app.get("/")
-def read_root():
-    return {"message": "Hello, Wordlddd!"}
+def read_root(db: Session = Depends(get_db)):
+    return {"message": "Connected to the database!"}
 
 
 if __name__ == "__main__":
