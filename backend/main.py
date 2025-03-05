@@ -12,7 +12,7 @@ app = FastAPI()
 
 # Define allowed origins for Cross-Origin Resource Sharing (CORS)
 origins = [
-    "http://localhost:3000/courses"     # Allow requests from frontend running on localhost:3000
+    "http://localhost:3000/courses"    
 ]
 
 # Add CORS middleware
