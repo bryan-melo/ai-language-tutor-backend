@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.database.models import Account
+from app.database.schemas.account import AccountCreate
 
 # Create a new account
 def create_account(db: Session, account: AccountCreate):

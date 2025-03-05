@@ -18,5 +18,5 @@ class Account(AccountBase):
    id: int
    
    class Config:
-      org_mode = True
+      orm_mode = True
       
