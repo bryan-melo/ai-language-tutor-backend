@@ -7,8 +7,11 @@ from typing import List
 from sqlalchemy.orm import Session
 from app.database.connection import SessionLocal
 from app.database.models import *
+from app.routes import account
 
 app = FastAPI()
+
+app.include_router(account.router)
 
 # Define allowed origins for Cross-Origin Resource Sharing (CORS)
 origins = [
