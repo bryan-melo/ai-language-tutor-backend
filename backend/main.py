@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from typing import List
 from sqlalchemy.orm import Session
 from app.database.connection import SessionLocal
-from app.models import *
+from app.database.models import *
 
 app = FastAPI()
 

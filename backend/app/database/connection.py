@@ -17,7 +17,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 # Import models
-from app.models import *
+from app.database.models import *
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
