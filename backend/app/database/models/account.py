@@ -1,13 +1,10 @@
-from sqlalchemy import Column, Integer, String
-from app.database.connection import Base
+from sqlmodel import Field, SQLModel
 
-class Account(Base):
-   __tablename__ = "account"
-   
-   id = Column(Integer, primary_key=True, index=True)
-   f_name = Column(String, nullable=False)
-   l_name = Column(String, nullable=False)
-   email = Column(String, nullable=False, unique=True)
-   username = Column(String, nullable=False, unique=True)
-   password = Column(String, nullable=False)
-   primary_lang = Column(String, nullable=False)
+class Account(SQLModel, table=True):   
+   id: int | None = Field(default=None, primary_key=True, index=True)
+   f_name: str
+   l_name: str
+   email: str = Field(unique=True)
+   username: str = Field(unique=True)
+   password: str
+   primary_lang: str
