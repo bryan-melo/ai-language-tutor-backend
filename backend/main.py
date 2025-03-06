@@ -4,8 +4,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
-from sqlalchemy.orm import Session
-from app.database.connection import SessionLocal
+from app.database.connection import create_db_and_tables, get_session
 from app.database.models import *
 from app.routes import account
 
@@ -27,18 +26,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Dependency to get DB session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
+# Create Database and Tables on startup
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+    
+    
 @app.get("/")
-def read_root(db: Session = Depends(get_db)):
-    return {"message": "Connected to the database!"}
+def read_root():
+    return {"message": "Hello world!"}
 
 
 if __name__ == "__main__":
