@@ -4,8 +4,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
-from app.database.connection import create_db_and_tables, get_session
-from app.database.models import *
+from app.database.connection import create_db_and_tables
 from app.routes import account
 
 app = FastAPI()
