@@ -25,6 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Create Database and Tables on startup
 @app.on_event("startup")
 def on_startup():
