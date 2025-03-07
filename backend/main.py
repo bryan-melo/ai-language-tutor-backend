@@ -1,14 +1,12 @@
 import uvicorn
-
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List
 from app.database.connection import create_db_and_tables
 from app.routes import account
 
 app = FastAPI()
 
+# Include Routes
 app.include_router(account.router)
 
 # Define allowed origins for Cross-Origin Resource Sharing (CORS)
@@ -16,7 +14,7 @@ origins = [
     "http://localhost:3000/courses"    
 ]
 
-# Add CORS middleware
+# Add CORS middleware to allow cross-origin requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -34,7 +32,13 @@ def on_startup():
     
 @app.get("/")
 def read_root():
-    return {"message": "Hello world!"}
+    return {
+        "message": "Welcome to the AI Language Tutor API",
+        "version": "1.0",
+        "routes": {
+            "accounts": "/account/{account_id}"
+        }
+    }
 
 
 if __name__ == "__main__":
