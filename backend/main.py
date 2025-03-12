@@ -12,7 +12,7 @@ app.include_router(account.router)
 # Define allowed origins for Cross-Origin Resource Sharing (CORS)
 origins = [
     "http://localhost:3000/courses",
-    "http://localhost:3000/signup"   
+    "http://localhost:3000/signup"  
 ]
 
 # Add CORS middleware to allow cross-origin requests
