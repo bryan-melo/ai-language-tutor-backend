@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from typing import Annotated
+from sqlmodel import select
 from app.database.connection import SessionDep
 from app.database.models import Account
 
@@ -33,3 +34,17 @@ def delete_account(account_id: int, session: SessionDep):
     session.delete(account)
     session.commit()
     return {"ok": True}
+
+
+# Route to login
+@router.post("/account/login")
+def login(username: str, password: str, session: SessionDep) -> dict:
+    # query for account using username
+    statement = select(Account).where(and_(Account.username == username, Account.password == password)) # query the database to find an account that matches the username
+    account = session.exec(statement).first() # executes the query and retrieves the first result
+    
+    if not account:
+        raise HTTPException(status_code=404, detail="Username not found")
+    
+    return {"username": account.username, "id": account.id}
+    
