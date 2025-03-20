@@ -40,11 +40,11 @@ def delete_account(account_id: int, session: SessionDep):
 @router.post("/account/login")
 def login(username: str, password: str, session: SessionDep) -> dict:
     # query for account using username
-    statement = select(Account).where(and_(Account.username == username, Account.password == password)) # query the database to find an account that matches the username
+    statement = select(Account).where(Account.username == username).where(Account.password == password) # query the database to find an account that matches the username
     account = session.exec(statement).first() # executes the query and retrieves the first result
     
     if not account:
-        raise HTTPException(status_code=404, detail="Username not found")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
     
     return {"username": account.username, "id": account.id}
     
