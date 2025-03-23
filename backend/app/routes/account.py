@@ -6,7 +6,6 @@ from app.database.models import Account
 
 router = APIRouter()
 
-
 # Route to create an account
 @router.post("/account/")
 def create_account_route(account: Account, session: SessionDep) -> Account:
