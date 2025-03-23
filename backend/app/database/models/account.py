@@ -1,6 +1,5 @@
 from sqlmodel import Field, SQLModel
 
-
 # Account Model for Database
 class Account(SQLModel, table=True):   
    id: int | None = Field(default=None, primary_key=True, index=True)

@@ -2,12 +2,12 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database.connection import create_db_and_tables
-from app.routes import account
+from app.routes import all_routers
 
 app = FastAPI()
 
-# Include Routes
-app.include_router(account.router)
+# Include all Routes
+all_routers(app)
 
 # Define allowed origins for Cross-Origin Resource Sharing (CORS)
 origins = [

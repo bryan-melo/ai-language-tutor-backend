@@ -7,7 +7,7 @@ from app.database.models import Account
 router = APIRouter()
 
 # Route to create an account
-@router.post("/account/")
+@router.post("/")
 def create_account_route(account: Account, session: SessionDep) -> Account:
     session.add(account)
     session.commit()
@@ -16,7 +16,7 @@ def create_account_route(account: Account, session: SessionDep) -> Account:
 
 
 # Route to get an account using account id
-@router.get("/account/{account_id}")
+@router.get("/get-account/{account_id}")
 def read_account(account_id: int, session: SessionDep) -> Account:
     account = session.get(Account, account_id)
     if not account:
@@ -25,7 +25,7 @@ def read_account(account_id: int, session: SessionDep) -> Account:
 
 
 # Route to delete an existing account
-@router.delete("/account/{account_id}")
+@router.delete("/delete-account/{account_id}")
 def delete_account(account_id: int, session: SessionDep):
     account = session.get(Account, account_id)
     if not account:
@@ -36,7 +36,7 @@ def delete_account(account_id: int, session: SessionDep):
 
 
 # Route to login
-@router.post("/account/login")
+@router.post("/login")
 def login(username: str, password: str, session: SessionDep) -> dict:
     # query for account using username
     statement = select(Account).where(Account.username == username).where(Account.password == password) # query the database to find an account that matches the username
