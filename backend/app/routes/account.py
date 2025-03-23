@@ -2,13 +2,14 @@ from fastapi import APIRouter, HTTPException
 from typing import Annotated
 from sqlmodel import select
 from app.database.connection import SessionDep
-from app.database.models import Account
+from app.database.schemas import Account, LoginResponse
 
 router = APIRouter()
 
+
 # Route to create an account
-@router.post("/")
-def create_account_route(account: Account, session: SessionDep) -> Account:
+@router.post("/create-account", response_model=Account)
+def create_account(account: Account, session: SessionDep) -> Account:
     session.add(account)
     session.commit()
     session.refresh(account)
@@ -16,7 +17,7 @@ def create_account_route(account: Account, session: SessionDep) -> Account:
 
 
 # Route to get an account using account id
-@router.get("/get-account/{account_id}")
+@router.get("/get-account/{account_id}", response_model=Account)
 def read_account(account_id: int, session: SessionDep) -> Account:
     account = session.get(Account, account_id)
     if not account:
@@ -36,8 +37,8 @@ def delete_account(account_id: int, session: SessionDep):
 
 
 # Route to login
-@router.post("/login")
-def login(username: str, password: str, session: SessionDep) -> dict:
+@router.post("/login", response_model=LoginResponse)
+def login(username: str, password: str, session: SessionDep) -> LoginResponse:
     # query for account using username
     statement = select(Account).where(Account.username == username).where(Account.password == password) # query the database to find an account that matches the username
     account = session.exec(statement).first() # executes the query and retrieves the first result
@@ -45,5 +46,5 @@ def login(username: str, password: str, session: SessionDep) -> dict:
     if not account:
         raise HTTPException(status_code=401, detail="Invalid username or password")
     
-    return {"username": account.username, "id": account.id}
+    return LoginResponse(username=account.username, id=account.id)
     

@@ -12,7 +12,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 
 # Import database models
-from app.database.models import *
+from app.database.schemas import *
 
 
 # Create Database & tables
