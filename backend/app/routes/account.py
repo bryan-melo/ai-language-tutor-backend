@@ -16,6 +16,9 @@ def create_account(account: Account, session: SessionDep) -> Account:
     return account
 
 
+# Route to get all accounts in database
+
+
 # Route to get an account using account id
 @router.get("/get-account/{account_id}", response_model=Account)
 def read_account(account_id: int, session: SessionDep) -> Account:

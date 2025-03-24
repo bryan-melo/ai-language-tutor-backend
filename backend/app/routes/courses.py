@@ -17,6 +17,9 @@ def create_course(course: Course, session: SessionDep) -> Course:
    return course
 
 
+# Route to get all courses in database
+
+
 # Route to get a course using course id
 @router.get("/get-course/{course_id}", response_model=Course)
 def get_course(course_id: int, session, SessionDep) -> Course:
@@ -35,6 +38,10 @@ def create_lesson(lesson: Lesson, session: SessionDep) -> Lesson:
    session.commit()
    session.refresh(lesson)
    return lesson
+
+
+# Route to get all courses in database
+
 
 
 # Route to get a lesson using lesson id
