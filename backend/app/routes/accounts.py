@@ -17,6 +17,14 @@ def create_account(account: Account, session: SessionDep) -> Account:
 
 
 # Route to get all accounts in database
+@router.post("/get-all-accounts", response_model=list[Account])
+def get_all_accounts(session: SessionDep) -> list[Account]:
+    accounts = session.query(Account).all()
+
+    if not accounts:
+        raise HTTPException(status_code=404, detail="No accounts found")
+
+    return accounts
 
 
 # Route to get an account using account id
