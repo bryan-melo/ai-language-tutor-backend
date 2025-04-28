@@ -29,8 +29,19 @@ def get_all_courses(session: SessionDep) -> list[Course]:
 
 # Route to get a course using course id
 @router.get("/get-course/{course_id}", response_model=Course)
-def get_course(course_id: int, session, SessionDep) -> Course:
+def get_course(course_id: int, session: SessionDep) -> Course:
    course = session.get(Course, course_id)
    if not course:
       raise HTTPException(status_code=404, detail="Course not found")
    return course
+
+
+# Route to delete an existing course
+@router.delete("/delete-course/{course_id}")
+def delete_course(course_id: int, session: SessionDep):
+   course = session.get(Course, course_id)
+   if not course:
+      raise HTTPException(status_code=404, detail="Course not found")
+   session.delete(course)
+   session.commit()
+   return {"ok": True}

@@ -15,10 +15,10 @@ class Course(SQLModel, table=True):
    author: str = Field(
       description="The name of the author that created this course"
    )
-   description: str = Field(
+   desc: str = Field(
       description="A brief summary or description of the course content"
    )
-   num_of_lessons: int = Field(
+   lessons: int = Field(
       description="The number of lessons included in the course"
    )
    category: str = Field(
@@ -27,6 +27,9 @@ class Course(SQLModel, table=True):
    progress: int = Field(
       default=0,
       description="A percentage related to the number of lessons completed within the course"
+   )
+   difficulty: str = Field(
+      description="Difficulty of a course ranging from Beginner, Intermediate, and Expert"
    )
    
    

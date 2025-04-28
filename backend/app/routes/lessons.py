@@ -34,3 +34,14 @@ def get_lesson(lesson_id: int, session, SessionDep) -> Lesson:
    if not lesson:
       raise HTTPException(status_code=404, detail="Lesson not found")
    return Lesson
+
+
+# Route to delete an existing lesson
+@router.delete("delete-lesson/{lesson_id}")
+def delete_lesson(lesson_id: int, session: SessionDep):
+   lesson = session.get(Lesson, lesson_id)
+   if not lesson:
+      raise HTTPException(status_code=404, detail="Lesson not found")
+   session.delete(lesson)
+   session.commit()
+   return {"ok": True}
