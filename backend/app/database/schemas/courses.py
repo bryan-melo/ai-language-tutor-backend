@@ -1,11 +1,11 @@
 from sqlmodel import Field, SQLModel
-from typing import List
+from typing import List, Optional
 from sqlalchemy import Column, JSON
 
 
 # Course Schema
 class Course(SQLModel, table=True):
-   id: int | None = Field(
+   id: Optional[int] = Field(
       default=None, 
       primary_key=True, 
       index=True,
@@ -34,7 +34,7 @@ class Course(SQLModel, table=True):
    
 # Lesson Schema
 class Lesson(SQLModel, table=True):
-   id: int | None = Field(
+   id: Optional[int] = Field(
       default=None, 
       primary_key=True, 
       index=True,

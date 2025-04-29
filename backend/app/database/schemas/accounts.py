@@ -1,10 +1,11 @@
 from sqlmodel import Field, SQLModel
 from datetime import datetime, timedelta
+from typing import Optional
 
 
 # Account Creation Schema
 class Account(SQLModel, table=True):   
-   id: int | None = Field(
+   id: Optional[int] = Field(
       default=None, 
       primary_key=True, 
       index=True,
@@ -42,7 +43,7 @@ class AccountRead(SQLModel):
    
 
 class AuthToken(SQLModel, table=True):
-   id: int | None = Field(
+   id: Optional[int] = Field(
       default=None,
       primary_key=True,
       description="Unique identifier for the authentication token"
