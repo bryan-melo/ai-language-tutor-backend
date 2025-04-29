@@ -17,9 +17,9 @@ def create_lesson(lesson: Lesson, session: SessionDep) -> Lesson:
 
 
 # Route to get all lessons in database
-@router.post("get-all-lessons", response_model=list[Lesson])
+@router.post("/get-all-lessons", response_model=list[Lesson])
 def get_all_lessons(session: SessionDep) -> list[Lesson]:
-   lessons = session.query(Account).all()
+   lessons = session.query(Lesson).all()
    
    if not lessons:
       raise HTTPException(status_code=404, detail="No lessons found")
@@ -29,15 +29,15 @@ def get_all_lessons(session: SessionDep) -> list[Lesson]:
 
 # Route to get a lesson using lesson id
 @router.get("/get-lesson/{lesson_id}", response_model=Lesson)
-def get_lesson(lesson_id: int, session, SessionDep) -> Lesson:
+def get_lesson(lesson_id: int, session: SessionDep) -> Lesson:
    lesson = session.get(Lesson, lesson_id)
    if not lesson:
       raise HTTPException(status_code=404, detail="Lesson not found")
-   return Lesson
+   return lesson
 
 
 # Route to delete an existing lesson
-@router.delete("delete-lesson/{lesson_id}")
+@router.delete("/delete-lesson/{lesson_id}")
 def delete_lesson(lesson_id: int, session: SessionDep):
    lesson = session.get(Lesson, lesson_id)
    if not lesson:
