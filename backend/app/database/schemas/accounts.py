@@ -1,4 +1,5 @@
 from sqlmodel import Field, SQLModel
+from datetime import datetime, timedelta
 
 
 # Account Creation Schema
@@ -30,12 +31,36 @@ class Account(SQLModel, table=True):
       description="Primary language used for default language to translate to"
    )
    
+   
+class AccountRead(SQLModel):
+   id: int
+   f_name: str
+   l_name: str
+   email: str
+   username: str
+   primary_lang: str
+   
 
-# Login response Schema
-class LoginResponse(SQLModel):
-   username: str = Field(
-      description="Unique username that will be used to log in to the account"
+class AuthToken(SQLModel, table=True):
+   id: int | None = Field(
+      default=None,
+      primary_key=True,
+      description="Unique identifier for the authentication token"
    )
-   id: int = Field(
-      description="Unique account identifier"
+   account_id: int = Field(
+      foreign_key="account.id",
+      description="ID of the account associated with this token"
    )
+   token: str = Field(
+      unique=True,
+      index=True,
+      description="Authentication token string"
+   )
+   created_at: datetime = Field(
+      default_factory=datetime.utcnow,
+      description="Timestamp when the token was created"
+   )
+   expires_at: datetime = Field(
+      default_factory=lambda: datetime.now(datetime.timezone.utc) + timedelta(days=7), 
+      description="Timestamp when the token expires"
+    )

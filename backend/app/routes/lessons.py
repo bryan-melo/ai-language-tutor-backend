@@ -17,7 +17,7 @@ def create_lesson(lesson: Lesson, session: SessionDep) -> Lesson:
 
 
 # Route to get all lessons in database
-@router.post("/get-all-lessons", response_model=list[Lesson])
+@router.get("/get-all-lessons", response_model=list[Lesson])
 def get_all_lessons(session: SessionDep) -> list[Lesson]:
    lessons = session.query(Lesson).all()
    

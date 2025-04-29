@@ -1,23 +1,38 @@
-from fastapi import APIRouter, HTTPException
+import secrets
+from fastapi import APIRouter, HTTPException, Cookie, Depends, Response
 from typing import Annotated
 from sqlmodel import select
+from passlib.context import CryptContext
 from app.database.connection import SessionDep
-from app.database.schemas import Account, LoginResponse
+from app.database.schemas import Account, AuthToken, AccountRead
+from datetime import datetime, timedelta
+
 
 router = APIRouter()
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 # Route to create an account
-@router.post("/create/create-account", response_model=Account)
-def create_account(account: Account, session: SessionDep) -> Account:
-    session.add(account)
+@router.post("/create/create-account", response_model=AccountRead)
+def create_account(account: Account, session: SessionDep) -> AccountRead:
+    db_account = Account(**account.dict())
+    db_account.password = hash_password(account.password)
+    session.add(db_account)
     session.commit()
-    session.refresh(account)
-    return account
+    session.refresh(db_account)
+    return db_account
 
 
 # Route to get all accounts in database
-@router.post("/get-all-accounts", response_model=list[Account])
+@router.get("/get-all-accounts", response_model=list[AccountRead])
 def get_all_accounts(session: SessionDep) -> list[Account]:
     accounts = session.query(Account).all()
 
@@ -28,8 +43,8 @@ def get_all_accounts(session: SessionDep) -> list[Account]:
 
 
 # Route to get an account using account id
-@router.get("/get-account/{account_id}", response_model=Account)
-def read_account(account_id: int, session: SessionDep) -> Account:
+@router.get("/get-account/{account_id}", response_model=AccountRead)
+def read_account(account_id: int, session: SessionDep) -> AccountRead:
     account = session.get(Account, account_id)
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
@@ -48,14 +63,84 @@ def delete_account(account_id: int, session: SessionDep):
 
 
 # Route to login
-@router.post("/login", response_model=LoginResponse)
-def login(username: str, password: str, session: SessionDep) -> LoginResponse:
+@router.post("/login")
+def login(username: str, password: str, session: SessionDep, response: Response):
     # query for account using username
-    statement = select(Account).where(Account.username == username).where(Account.password == password) # query the database to find an account that matches the username
+    statement = select(Account).where(Account.username == username)
     account = session.exec(statement).first() # executes the query and retrieves the first result
     
+    if not account or not verify_password(password, account.password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    # Create a new toke
+    token = secrets.token_hex(16)
+    auth_token = AuthToken(
+        account_id=account.id,
+        token=token,
+        created_at=datetime.now(datetime.timezone.utc),
+        expires_at=datetime.now(datetime.timezone.utc) + timedelta(days=7)  # Token valid for 7 days
+    )
+    session.add(auth_token)
+    session.commit()
+    
+    # Set secure cookie
+    response.set_cookie(
+        key="auth_token",
+        value=token,
+        httponly=True,
+        secure=True,  
+        samesite='strict',  
+        max_age=7 * 24 * 60 * 60  # Cookie valid for 7 days
+    )
+    
+    return {"message": "Login successful"}
+    
+
+# Route to get the current user based on the authentication token
+def get_current_user(session: SessionDep, token: str = Cookie(None)) -> AccountRead:
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # Lookup token
+    auth_token = session.exec(
+        select(AuthToken).where(AuthToken.token == token)
+    ).first()
+
+    # Check if token exists and hasn't expired
+    if not auth_token or auth_token.expires_at < datetime.now(datetime.timezone.utc):
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    # Fetch the account
+    account = session.get(Account, auth_token.account_id)
     if not account:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
-    
-    return LoginResponse(username=account.username, id=account.id)
-    
+        raise HTTPException(status_code=401, detail="Account not found")
+
+    return account
+
+
+# Route to log out
+@router.post("/logout")
+def logout(session: SessionDep, response: Response, token: Annotated[str | None, Cookie()] = None):
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # Invalidate the token by deleting it from the database
+    auth_token = session.exec(
+        select(AuthToken).where(AuthToken.token == token)
+    ).first()
+
+    if not auth_token:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    session.delete(auth_token)
+    session.commit()
+
+    # Clear the cookie
+    response.delete_cookie(
+        key="auth_token",
+        httponly=True,
+        secure=True,
+        samesite='strict'
+    )
+
+    return {"message": "Logout successful"}

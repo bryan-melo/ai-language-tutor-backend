@@ -17,7 +17,7 @@ def create_course(course: Course, session: SessionDep) -> Course:
 
 
 # Route to get all courses in database
-@router.post("/get-all-courses", response_model=list[Course])
+@router.get("/get-all-courses", response_model=list[Course])
 def get_all_courses(session: SessionDep) -> list[Course]:
    courses = session.query(Course).all()
    
