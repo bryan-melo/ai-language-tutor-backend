@@ -8,7 +8,7 @@ router = APIRouter()
 
 
 # Route to create an account
-@router.post("/create-account", response_model=Account)
+@router.post("/create/create-account", response_model=Account)
 def create_account(account: Account, session: SessionDep) -> Account:
     session.add(account)
     session.commit()
@@ -37,7 +37,7 @@ def read_account(account_id: int, session: SessionDep) -> Account:
 
 
 # Route to delete an existing account
-@router.delete("/delete-account/{account_id}")
+@router.delete("/delete/delete-account/{account_id}")
 def delete_account(account_id: int, session: SessionDep):
     account = session.get(Account, account_id)
     if not account:

@@ -8,7 +8,7 @@ router = APIRouter()
 
 
 # Route to create a lesson
-@router.post("/create-lesson", response_model=Lesson)
+@router.post("/create/create-lesson", response_model=Lesson)
 def create_lesson(lesson: Lesson, session: SessionDep) -> Lesson:
    session.add(lesson)
    session.commit()
@@ -37,7 +37,7 @@ def get_lesson(lesson_id: int, session: SessionDep) -> Lesson:
 
 
 # Route to delete an existing lesson
-@router.delete("/delete-lesson/{lesson_id}")
+@router.delete("/delete/delete-lesson/{lesson_id}")
 def delete_lesson(lesson_id: int, session: SessionDep):
    lesson = session.get(Lesson, lesson_id)
    if not lesson:
