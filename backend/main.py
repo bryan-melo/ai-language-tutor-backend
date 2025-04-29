@@ -38,7 +38,14 @@ def read_root():
         "message": "Welcome to the AI Language Tutor API",
         "version": "1.0",
         "routes": {
-            "accounts": "/account/{account_id}"
+            "courses": {
+                "Get course": "/courses/get-course/{course_id}",
+                "Get all courses": "/courses/get-all-courses",
+            },
+            "lessons": {
+                "Get lesson": "/lessons/get-lesson/{lesson_id}",
+                "Get all lessons": "/lessons/get-all-lessons",
+            }
         }
     }
 
