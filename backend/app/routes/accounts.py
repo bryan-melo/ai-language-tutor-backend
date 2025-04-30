@@ -4,7 +4,8 @@ from typing import Annotated
 from sqlmodel import select
 from passlib.context import CryptContext
 from app.database.connection import SessionDep
-from app.database.schemas import Account, AuthToken, AccountRead
+from app.database.schemas import Account, AuthToken
+from app.models.account_models import AccountRead, LoginRequest
 from datetime import datetime, timedelta
 
 
@@ -64,12 +65,13 @@ def delete_account(account_id: int, session: SessionDep):
 
 # Route to login
 @router.post("/login")
-def login(username: str, password: str, session: SessionDep, response: Response):
+def login(request: LoginRequest, session: SessionDep, response: Response):
     # query for account using username
-    statement = select(Account).where(Account.username == username)
-    account = session.exec(statement).first() # executes the query and retrieves the first result
+    account = session.exec(
+        select(Account).where(Account.username == request.username)
+    ).first()
     
-    if not account or not verify_password(password, account.password):
+    if not account or not verify_password(request.password, account.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     # Create a new toke

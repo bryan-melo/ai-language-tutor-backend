@@ -33,15 +33,6 @@ class Account(SQLModel, table=True):
    )
    
    
-class AccountRead(SQLModel):
-   id: int
-   f_name: str
-   l_name: str
-   email: str
-   username: str
-   primary_lang: str
-   
-
 class AuthToken(SQLModel, table=True):
    id: Optional[int] = Field(
       default=None,
