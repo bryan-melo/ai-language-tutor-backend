@@ -49,10 +49,8 @@ class AuthToken(SQLModel, table=True):
       description="Authentication token string"
    )
    created_at: datetime = Field(
-      default_factory=datetime.utcnow,
       description="Timestamp when the token was created"
    )
    expires_at: datetime = Field(
-      default_factory=lambda: datetime.now(datetime.timezone.utc) + timedelta(days=7), 
       description="Timestamp when the token expires"
     )

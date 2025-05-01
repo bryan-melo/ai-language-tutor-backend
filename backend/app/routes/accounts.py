@@ -75,12 +75,12 @@ def login(request: LoginRequest, session: SessionDep, response: Response):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     # Create a new toke
-    token = secrets.token_hex(16)
+    token = secrets.token_hex(16)    
     auth_token = AuthToken(
         account_id=account.id,
         token=token,
-        created_at=datetime.now(datetime.timezone.utc),
-        expires_at=datetime.now(datetime.timezone.utc) + timedelta(days=7)  # Token valid for 7 days
+        created_at=datetime.utcnow(),
+        expires_at=datetime.utcnow() + timedelta(days=7)  # Token valid for 7 days
     )
     session.add(auth_token)
     session.commit()
@@ -90,13 +90,13 @@ def login(request: LoginRequest, session: SessionDep, response: Response):
         key="auth_token",
         value=token,
         httponly=True,
-        secure=True,  
-        samesite='strict',  
+        secure=True,
+        samesite='strict',
         max_age=7 * 24 * 60 * 60  # Cookie valid for 7 days
     )
-    
+
     return {"message": "Login successful"}
-    
+
 
 # Route to get the current user based on the authentication token
 def get_current_user(session: SessionDep, token: str = Cookie(None)) -> AccountRead:
