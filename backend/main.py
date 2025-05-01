@@ -11,7 +11,8 @@ all_routers(app)
 
 # Define allowed origins for Cross-Origin Resource Sharing (CORS)
 origins = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://ai-language-tutor-frontend-sable.vercel.app"
 ]
 
 # Add CORS middleware to allow cross-origin requests
