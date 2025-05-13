@@ -91,7 +91,7 @@ def login(request: LoginRequest, session: SessionDep, response: Response):
         value=token,
         httponly=True,
         secure=True,
-        samesite='strict',
+        samesite='None',
         max_age=7 * 24 * 60 * 60  # Cookie valid for 7 days
     )
 
@@ -118,9 +118,10 @@ def logout(session: SessionDep, response: Response, token: Annotated[str | None,
     # Clear the cookie
     response.delete_cookie(
         key="auth_token",
+        value=token,
         httponly=True,
         secure=True,
-        samesite='strict'
+        samesite='None'
     )
 
     return {"message": "Logout successful"}
@@ -148,6 +149,6 @@ def get_current_user(session: SessionDep, token: str = Cookie(None)) -> AccountR
     return account
 
 
-@router.get("/auth/check", response_model=AccountRead)
+@router.get("/auth/me", response_model=AccountRead)
 def auth_check(current_user: AccountRead = Depends(get_current_user)):
     return current_user
