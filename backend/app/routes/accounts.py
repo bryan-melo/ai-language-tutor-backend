@@ -98,28 +98,6 @@ def login(request: LoginRequest, session: SessionDep, response: Response):
     return {"message": "Login successful"}
 
 
-# Route to get the current user based on the authentication token
-def get_current_user(session: SessionDep, token: str = Cookie(None)) -> AccountRead:
-    if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-
-    # Lookup token
-    auth_token = session.exec(
-        select(AuthToken).where(AuthToken.token == token)
-    ).first()
-
-    # Check if token exists and hasn't expired
-    if not auth_token or auth_token.expires_at < datetime.now(datetime.timezone.utc):
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-
-    # Fetch the account
-    account = session.get(Account, auth_token.account_id)
-    if not account:
-        raise HTTPException(status_code=401, detail="Account not found")
-
-    return account
-
-
 # Route to log out
 @router.post("/logout")
 def logout(session: SessionDep, response: Response, token: Annotated[str | None, Cookie()] = None):
@@ -146,3 +124,30 @@ def logout(session: SessionDep, response: Response, token: Annotated[str | None,
     )
 
     return {"message": "Logout successful"}
+
+
+# Route to get the current user based on the authentication token
+def get_current_user(session: SessionDep, token: str = Cookie(None)) -> AccountRead:
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # Lookup token
+    auth_token = session.exec(
+        select(AuthToken).where(AuthToken.token == token)
+    ).first()
+
+    # Check if token exists and hasn't expired
+    if not auth_token or auth_token.expires_at < datetime.now(datetime.timezone.utc):
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    # Fetch the account
+    account = session.get(Account, auth_token.account_id)
+    if not account:
+        raise HTTPException(status_code=401, detail="Account not found")
+
+    return account
+
+
+@router.get("/auth/check", response_model=AccountRead)
+def auth_check(current_user: AccountRead = Depends(get_current_user)):
+    return current_user
