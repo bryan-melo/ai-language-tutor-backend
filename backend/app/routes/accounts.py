@@ -63,7 +63,7 @@ def delete_account(account_id: int, session: SessionDep):
 
 
 # Route to login
-@router.post("/login")
+@router.post("/login", response_model=AccountRead)
 def login(request: LoginRequest, session: SessionDep) -> AccountRead:
     account = session.exec(
         select(Account).where(Account.username == request.username)
@@ -72,7 +72,11 @@ def login(request: LoginRequest, session: SessionDep) -> AccountRead:
     if not account or not verify_password(request.password, account.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    return AccountRead.from_orm(account)
+    db_account = session.get(Account, account.id)
+    if not db_account:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    return db_account
 
 
 # Route to log out

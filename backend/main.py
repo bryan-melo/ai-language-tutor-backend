@@ -3,36 +3,33 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database.connection import create_db_and_tables
 from app.routes import all_routers
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+# Create Database and Tables on startup
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_db_and_tables()
+    yield
 
-# Include all Routes
-all_routers(app)
-
-# Define allowed origins for Cross-Origin Resource Sharing (CORS)
-origins = [
-    "http://localhost:3000",
-    "https://ai-language-tutor-frontend-sable.vercel.app"
-]
+app = FastAPI(lifespan=lifespan)
 
 # Add CORS middleware to allow cross-origin requests
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins = [
+        "http://localhost:3000",
+        "https://ai-language-tutor-frontend-sable.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-# Create Database and Tables on startup
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
     
+# Include all Routes
+all_routers(app)
     
 @app.get("/")
-def read_root():
+async def read_root():
     return {
         "message": "Welcome to the AI Language Tutor API",
         "version": "1.0",
