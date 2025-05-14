@@ -14,15 +14,15 @@ def create_lesson(lesson: Lesson, session: SessionDep) -> Lesson:
    return lesson
 
 
-# Route to get all lessons in database
-@router.get("/get-all-lessons", response_model=list[Lesson])
-def get_all_lessons(session: SessionDep) -> list[Lesson]:
-   lessons = session.query(Lesson).all()
-   
-   if not lessons:
-      raise HTTPException(status_code=404, detail="No lessons found")
-
-   return lessons
+# Route to get all lessons for a specific course
+@router.get("/get-lessons-by-course/{course_id}", response_model=list[Lesson])
+def get_lessons_by_course(course_id: int, session: SessionDep) -> list[Lesson]:
+    lessons = session.query(Lesson).filter(Lesson.parent_course == course_id).all()
+    
+    if not lessons:
+        raise HTTPException(status_code=404, detail="No lessons found for this course")
+    
+    return lessons
 
 
 # Route to get a lesson using lesson id
