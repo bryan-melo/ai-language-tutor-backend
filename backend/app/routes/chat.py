@@ -18,10 +18,10 @@ async def chat_with_gpt(request: ChatRequest):
             },
             {"role": "user", "content": request.user_input},
         ]
-        response = client.responses.create(
+        response = client.chat.completions.create(
             model="gpt-4o",
-            input=messages,
+            messages=messages,
         )
-        return {"response": response.output_text}
+        return {"response": response.choices[0].message.content}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
