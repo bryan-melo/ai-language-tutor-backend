@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-import openai
+from openai import OpenAI, AsyncOpenAI
 from dotenv import load_dotenv
 import os
 from app.models.chat_models import ChatRequest
@@ -8,7 +8,12 @@ load_dotenv()
 router = APIRouter()
 
 # Set the API key
-openai.api_key = os.getenv("OPENAI_API_KEY")
+OPEN_AI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPEN_AI_API_KEY:
+    raise RuntimeError("OPENAI_API_KEY not set")
+
+async_client = AsyncOpenAI(api_key=OPEN_AI_API_KEY)
+client = OpenAI(api_key=OPEN_AI_API_KEY)
 
 @router.post("/chat")
 async def chat_with_gpt(request: ChatRequest):
@@ -20,10 +25,14 @@ async def chat_with_gpt(request: ChatRequest):
             },
             {"role": "user", "content": request.user_input},
         ]
-        response = openai.ChatCompletion.create(
+
+        # New SDK call using async client
+        response = await async_client.chat.completions.create(
             model="gpt-4",
             messages=messages,
         )
-        return {"response": response["choices"][0]["message"]["content"]}
+
+        return {"response": response.choices[0].message.content}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
