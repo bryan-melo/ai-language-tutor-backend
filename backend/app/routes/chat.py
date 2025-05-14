@@ -20,7 +20,7 @@ async def chat_with_gpt(request: ChatRequest):
         messages = [
             {
                 "role": "system",
-                "content": f"You're a pronunciation tutor. Evaluate how the user pronounces: \"{request.prompt_text}\".",
+                "content": request.role_prompt or "You are a helpful language tutor. Respond to the user’s message.",
             },
             {"role": "user", "content": request.user_input},
         ]
