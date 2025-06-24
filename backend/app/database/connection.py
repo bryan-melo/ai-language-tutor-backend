@@ -6,10 +6,13 @@ from typing import Annotated
 
 # Load environment variables
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
+
+
+def get_database_url():
+    return os.getenv("DATABASE_URL")
 
 # Create engine
-engine = create_engine(DATABASE_URL)
+engine = create_engine(get_database_url())
 
 # Import database models
 from app.database.schemas import *
