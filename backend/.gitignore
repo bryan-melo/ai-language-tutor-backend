@@ -49,3 +49,6 @@ desktop.ini
 config.json
 secrets.json
 .env.local
+
+# Pytest
+.pytest_cache

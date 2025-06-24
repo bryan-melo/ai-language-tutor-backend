@@ -1,0 +1,10 @@
+from fastapi.testclient import TestClient
+from backend.main import app
+
+client = TestClient(app)
+
+
+def test_read_root():
+   assert 1 + 1 == 2
+ 
+
