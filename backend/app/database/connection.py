@@ -19,8 +19,8 @@ from app.database.schemas import *
 
 
 # Create Database & tables
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
+def create_db_and_tables(custom_engine=None):
+    SQLModel.metadata.create_all(custom_engine or engine)
 
 
 # Get the session
