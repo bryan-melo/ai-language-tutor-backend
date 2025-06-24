@@ -52,6 +52,3 @@ secrets.json
 
 # Pytest
 .pytest_cache
-
-# Local
-.python-version

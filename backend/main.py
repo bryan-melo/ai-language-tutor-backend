@@ -11,6 +11,7 @@ async def lifespan(app: FastAPI):
     create_db_and_tables()  # Setup DB
     yield
 
+
 app = FastAPI(lifespan=lifespan)
 
 # Include all Routes
