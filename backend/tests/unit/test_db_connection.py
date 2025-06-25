@@ -28,5 +28,16 @@ def test_engine(monkeypatch):
 
 
 # Test session
-def test_get_session():
-   pass
+def test_get_session(monkeypatch):
+   monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+   
+   engine = create_engine(os.getenv("DATABASE_URL"))
+   create_db_and_tables(engine)
+   
+   session_gen = get_session()
+   session = next(session_gen)
+   
+   inspector = inspect(engine)
+   
+   assert "account" in inspector.get_table_names()
+   assert session is not None
