@@ -1,3 +1,5 @@
+import pytest
+from pydantic import ValidationError
 from app.database.schemas import *
 
 
@@ -17,3 +19,15 @@ class TestDatabaseSchemas:
       assert account.email == "bryan@test.com" 
       
    
+   # Test Account schema for invalid instance
+   def test_account_schema_missing_required(self):
+      with pytest.raises(ValidationError):
+         Account.model_validate({
+            "f_name": "Bryan",
+            "l_name": "Melo",
+            "username": "bryan123",
+            "password": "1234",
+            "primary_lang": "en"
+         })
+      
+      
