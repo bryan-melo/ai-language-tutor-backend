@@ -23,6 +23,7 @@ def safe_create_engine():
     except Exception as e:
         raise RuntimeError(f'Failed to initialize database engine: {e}')
 
+
 # Import database models
 from app.database.schemas import *
 
