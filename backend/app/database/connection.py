@@ -8,11 +8,19 @@ from typing import Annotated
 load_dotenv()
 
 
+# Get database URL with a fallback error if not set
 def get_database_url():
-    return os.getenv("DATABASE_URL")
+    db_url = os.getenv("DATABASE_URL")
+    if not db_url:
+        raise RuntimeError("DATABASE_URL is not set. Cannot create database engine")
+    return db_url
 
-# Create engine
-engine = create_engine(get_database_url())
+
+# Try creating the engine
+try:
+    engine = create_engine(get_database_url())
+except Exception as e:
+    raise RuntimeError(f'Failed to initialize database engine: {e}')
 
 # Import database models
 from app.database.schemas import *
@@ -20,14 +28,20 @@ from app.database.schemas import *
 
 # Create Database & tables
 def create_db_and_tables(custom_engine=None):
-    SQLModel.metadata.create_all(custom_engine or engine)
+    try:
+        SQLModel.metadata.create_all(custom_engine or engine)
+    except Exception as e:
+        raise RuntimeError(f'Failed to create database tables: {e}')
 
 
 # Get the session
 def get_session():
-    with Session(engine) as session:
-        yield session
+    try:
+        with Session(engine) as session:
+            yield session
+    except Exception as e:
+        raise RuntimeError(f'Database session error: {e}')        
+    
 
-
-# Create session dependency 
+# Create session dependency
 SessionDep = Annotated[Session, Depends(get_session)]
