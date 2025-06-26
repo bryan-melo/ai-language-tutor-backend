@@ -17,10 +17,11 @@ def get_database_url():
 
 
 # Try creating the engine
-try:
-    engine = create_engine(get_database_url())
-except Exception as e:
-    raise RuntimeError(f'Failed to initialize database engine: {e}')
+def safe_create_engine():
+    try:
+        return create_engine(get_database_url())
+    except Exception as e:
+        raise RuntimeError(f'Failed to initialize database engine: {e}')
 
 # Import database models
 from app.database.schemas import *
@@ -29,7 +30,7 @@ from app.database.schemas import *
 # Create Database & tables
 def create_db_and_tables(custom_engine=None):
     try:
-        SQLModel.metadata.create_all(custom_engine or engine)
+        SQLModel.metadata.create_all(custom_engine or safe_create_engine())
     except Exception as e:
         raise RuntimeError(f'Failed to create database tables: {e}')
 
@@ -37,7 +38,7 @@ def create_db_and_tables(custom_engine=None):
 # Get the session
 def get_session():
     try:
-        with Session(engine) as session:
+        with Session(safe_create_engine()) as session:
             yield session
     except Exception as e:
         raise RuntimeError(f'Database session error: {e}')        
