@@ -1,37 +1,107 @@
-# Tests Directory
+
+# 🧪 Tests Directory
 
 This directory contains all automated tests for the **AI-Powered Language Tutor** backend repository.
 
 ---
 
-## Table of Contents
+## 📄 Table of Contents
 
-- [Overview](#overview)
-- [Tools & Stack](#tools--stack)
-- [Test Structure](#test-structure)
-- [Running Tests](#running-tests)
-- [Reporting](#reporting)
-- [Notes](#notes)
-- [References](#references)
+- Overview
+- Tools & Stack
+- Test Structure
+- Running Tests
+- Reporting
+- Notes
+- References
 
 ---
 
-## Overview
+## 💡 Overview
 
-The tests validate the correctness, reliability, and robustness of backend components, including database connections, schemas, API routes, and data models.  
+The tests ensure correctness, reliability, and robustness of backend components, including:
+
+- Database connections
+- Schemas
+- API routes
+- Data models
 
 I use **Pytest** for automated unit and integration tests, and **Postman** for exploratory and manual API testing.
 
 ---
 
-## Tools & Stack
+## 🧰 Tools & Stack
 
-- **Pytest** — main Python testing framework.
-- **SQLModel & SQLAlchemy** — for setting up temporary databases.
-- **Pydantic** — for schema and model validation.
-- **Postman** — for manual API endpoint checks.
-- **GitHub Actions** — for running automated tests on pull requests and deployments.
+- **Pytest** — Unit and API testing framework.
+- **SQLModel & SQLAlchemy** — Database interactions and test databases.
+- **Pydantic** — Data validation for schemas and models.
+- **Postman** — Manual and exploratory API testing.
+- **GitHub Actions** — CI/CD automated checks.
 
 ---
 
-## Test Structure
+## Test File Structure
+
+```
+tests/
+├── api/           # API endpoint tests using TestClient
+├── unit/          # Unit tests for database connections, schemas, models
+│   └── database_tests/
+│       ├── test_db_connection.py
+│       ├── test_db_schemas.py
+│       └── ...
+├── integration/   # Planned integration tests
+├── ui/            # Planned Selenium UI tests
+```
+
+**Unit tests:** Test small, isolated pieces (functions, schemas).  
+**API tests:** Validate route logic and responses.  
+**Integration tests (planned):** Check end-to-end workflows.  
+**UI tests (planned):** Automate frontend flows like login and lesson tracking.
+
+---
+
+## Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run and generate an HTML report
+pytest --html=all_unit_test_report.html
+
+# Run a single test file
+pytest tests/unit/database_tests/test_db_connection.py
+
+# Run tests in parallel (if configured)
+pytest -n auto
+```
+
+---
+
+## Reporting
+
+- HTML reports (e.g., `all_unit_test_06262025.html`) summarize pass/fail status.
+- Includes tracebacks, runtime, and detailed breakdowns.
+- HTML reports are stored under 'reports/' directory.
+
+---
+
+## Notes
+
+- Tests include positive, negative, and edge case scenarios.
+- Database tests use an in-memory SQLite engine to avoid touching production data.
+- Tests are designed to run in CI/CD pipelines (GitHub Actions).
+
+---
+
+## References
+
+- Pytest: https://docs.pytest.org/en/stable/
+- Postman: https://www.postman.com/
+- SQLModel: https://sqlmodel.tiangolo.com/
+- FastAPI: https://fastapi.tiangolo.com/
+
+---
+
+_Last updated: June 26, 2025._
