@@ -74,5 +74,3 @@ class TestAccountModels:
             "username": "Tester",
             "passwordd": "1234",    # Password mispelled
          })
-   
-
