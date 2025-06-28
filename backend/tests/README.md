@@ -1,11 +1,11 @@
 
-# 🧪 Tests Directory
+# Tests Directory
 
 This directory contains all automated tests for the **AI-Powered Language Tutor** backend repository.
 
 ---
 
-## 📄 Table of Contents
+## Table of Contents
 
 - Overview
 - Tools & Stack
@@ -17,7 +17,7 @@ This directory contains all automated tests for the **AI-Powered Language Tutor*
 
 ---
 
-## 💡 Overview
+## Overview
 
 The tests ensure correctness, reliability, and robustness of backend components, including:
 
@@ -30,7 +30,7 @@ I use **Pytest** for automated unit and integration tests, and **Postman** for e
 
 ---
 
-## 🧰 Tools & Stack
+## Tools & Stack
 
 - **Pytest** — Unit and API testing framework.
 - **SQLModel & SQLAlchemy** — Database interactions and test databases.
