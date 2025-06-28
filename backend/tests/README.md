@@ -1,27 +1,37 @@
 # Tests Directory
 
-This directory contains all automated tests for the AI-Powered Language Tutor backend repository.  
+This directory contains all automated tests for the **AI-Powered Language Tutor** backend repository.
 
-## Testing Overview
+---
 
-We use a combination of **Pytest** for unit and integration tests and **Postman** for exploratory API testing.  
+## Table of Contents
 
-### Purpose
+- [Overview](#overview)
+- [Tools & Stack](#tools--stack)
+- [Test Structure](#test-structure)
+- [Running Tests](#running-tests)
+- [Reporting](#reporting)
+- [Notes](#notes)
+- [References](#references)
 
-- **Unit tests:** Verify individual functions and components in isolation (e.g., database connections, schemas, Pydantic models).
-- **Integration tests:** Validate that database interactions and service layers work together as expected.
-- **API tests:** Confirm application endpoints return expected responses and handle errors properly.
+---
+
+## Overview
+
+The tests validate the correctness, reliability, and robustness of backend components, including database connections, schemas, API routes, and data models.  
+
+I use **Pytest** for automated unit and integration tests, and **Postman** for exploratory and manual API testing.
 
 ---
 
 ## Tools & Stack
 
-- **Pytest** — main framework for all automated Python tests.
-- **SQLModel & SQLAlchemy** — used to set up in-memory databases for tests.
-- **Pydantic** — validates data models and schemas.
-- **Postman** — used for manual and exploratory endpoint testing.
-- **GitHub Actions** — for continuous integration and running tests on pull requests or before deployments.
+- **Pytest** — main Python testing framework.
+- **SQLModel & SQLAlchemy** — for setting up temporary databases.
+- **Pydantic** — for schema and model validation.
+- **Postman** — for manual API endpoint checks.
+- **GitHub Actions** — for running automated tests on pull requests and deployments.
 
 ---
 
-## Structure
+## Test Structure
