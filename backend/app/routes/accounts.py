@@ -1,12 +1,9 @@
-import secrets
-from fastapi import APIRouter, HTTPException, Depends
-from typing import Optional
+from fastapi import APIRouter, HTTPException
 from sqlmodel import select
 from passlib.context import CryptContext
 from app.database.connection import SessionDep
-from app.database.schemas import Account, AuthToken
+from app.database.schemas import Account
 from app.models.account_models import AccountRead, LoginRequest
-from datetime import datetime, timedelta
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
