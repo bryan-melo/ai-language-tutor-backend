@@ -7,13 +7,13 @@ This directory contains all automated tests for the **AI-Powered Language Tutor*
 
 ## Table of Contents
 
-- Overview
-- Tools & Stack
-- Test Structure
-- Running Tests
-- Reporting
-- Notes
-- References
+1. [Overview](#overview)
+2. [Tools & Stack](#tools--stack) 
+3. [Test File Structure](#test-file-structure)
+4. [Running Tests](#running-tests)
+5. [Reporting](#reporting)
+6. [Notes](#notes)
+7. [References](#references)
 
 ---
 
@@ -104,4 +104,4 @@ pytest -n auto
 
 ---
 
-_Last updated: June 26, 2025._
+_Last updated: June 28, 2025._
