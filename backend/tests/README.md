@@ -6,7 +6,6 @@ This directory serves as a high-level overview of tests created for the **AI-Pow
 ---
 
 ## Table of Contents
-
 1. [Overview](#overview)
 2. [Tools & Stack](#tools--stack) 
 3. [Test File Structure](#test-file-structure)
