@@ -1,7 +1,7 @@
 
 # Tests Directory
 
-This directory contains all automated tests for the **AI-Powered Language Tutor** backend repository.
+This directory serves as a high-level overview of tests created for the **AI-Powered Language Tutor** backend repository.
 
 ---
 
