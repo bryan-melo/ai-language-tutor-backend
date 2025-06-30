@@ -19,3 +19,6 @@ def config():
 @pytest.fixture
 def db_connection(config):
    return connect(config["db"])
+
+
+assert "username" in get_data()
