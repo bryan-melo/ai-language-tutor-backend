@@ -9,4 +9,3 @@ def get_data():
 
 def test_example(get_data):
    assert "username" in get_data
-   
