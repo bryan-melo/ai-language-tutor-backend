@@ -10,3 +10,4 @@ async def test_get_all_accounts():
       
       # Verify status code
       assert response.status_code == 200
+      
