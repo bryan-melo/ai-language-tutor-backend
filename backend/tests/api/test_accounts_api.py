@@ -10,4 +10,5 @@ async def test_get_all_accounts():
       
       # Verify status code
       assert response.status_code == 200
+      assert response.headers["Content-Type"] == "application/json; charset=UTF-8"
       
