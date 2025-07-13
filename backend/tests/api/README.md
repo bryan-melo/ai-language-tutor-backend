@@ -4,14 +4,18 @@ This document outlines the **test plan** for validating API endpoints in the AI-
 ## 📄 Table of Contents
 
 1. [Test Objectives](#test-objectives)
-2. [Endpoints to Test](#endpoints-to-test)
+2. [RESTful APIs Foundational Knowledge](#restful-apis-foundational-knowledge)
+   - [HTTP Methods](#http-methods)
+   - [Status Codes](#status-codes)
+   - [Validation](#validation)
+3. [Endpoints to Test](#endpoints-to-test)
    - [Account Endpoints](#account)
    - [OpenAI Endpoints](#openai)
    - [Courses Endpoints](#courses)
-   - [Courses / Lessons Endpoints](#courseslessons)
-3. [Tools](#tools)
-4. [Future Considerations](#future-considerations)
-5. [Resources](#resources)
+   - [Lessons Endpoints](#courseslessons)
+4. [Tools](#tools)
+5. [Future Considerations](#future-considerations)
+6. [Resources](#resources)
 
 --- 
 
@@ -19,6 +23,26 @@ This document outlines the **test plan** for validating API endpoints in the AI-
 - Verify each endpoint works as expected with valid data. 
 - Ensure proper error handling with invalid or missing data.
 - Check HTTP status codes and response schemas.
+
+---
+
+## RESTful APIs Foundational Knowledge
+
+### HTTP Methods
+- **GET**: Retrieves data from the server
+- **POST**: Creates a new resource on the server
+- **PUT**: Updates an existing resource on the server
+- **DELETE**: Removes a resource from the server
+
+### Status Codes
+- **2xx Success**: Indicates successful actions
+- **4xx Client Error**: Signals an issue likely related to the request itself
+- **5xx Server Error**: Points to problems on the server side
+
+### Validation
+- **Structure**: Verify that the response adheres to the expected format (typically JSON for RESTful APIs)
+- **Content-Type**: Confirm that the Content-Type header correctly specifies the format of the response
+- **Data Integrity**: Check that the data within the response matches your expectations, both in terms of values and their types
 
 ---
 
