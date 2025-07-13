@@ -8,6 +8,7 @@ client = TestClient(app)
 email_pattern = r"^[^@]+@[^@]+\.[^@]+$"
 
 
+# Function to test get-all-accounts endpoint
 def test_get_all_accounts():
    url = "/account/get-all-accounts"
    response = client.get(url)
