@@ -48,7 +48,9 @@ def login(request: LoginRequest, session: SessionDep) -> AccountRead:
 # Route to get all accounts in database
 @router.get("/get-all-accounts", response_model=list[AccountRead])
 def get_all_accounts(session: SessionDep) -> list[Account]:
-    accounts = session.query(Account).all()
+    accounts = session.exec(
+        select(Account)
+    )
 
     if not accounts:
         raise HTTPException(status_code=404, detail="No accounts found")
