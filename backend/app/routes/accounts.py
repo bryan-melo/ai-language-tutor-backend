@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from sqlmodel import select
 from passlib.context import CryptContext
 from app.database.connection import SessionDep
@@ -18,9 +18,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 # Route to create an account
-@router.post("/create/create-account", response_model=AccountRead)
+@router.post("/create/create-account", response_model=AccountRead, status_code=status.HTTP_201_CREATED)
 def create_account(account: Account, session: SessionDep) -> AccountRead:
-    db_account = Account(**account.dict())
+    db_account = Account(**account.model_dump())
     db_account.password = hash_password(account.password)
     session.add(db_account)
     session.commit()
@@ -60,7 +60,7 @@ def get_all_accounts(session: SessionDep) -> list[Account]:
 
 # Route to get an account using account id
 @router.get("/get-account/{account_id}", response_model=AccountRead)
-def read_account(account_id: int, session: SessionDep) -> AccountRead:
+def get_account(account_id: int, session: SessionDep) -> AccountRead:
     account = session.get(Account, account_id)
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
@@ -68,7 +68,7 @@ def read_account(account_id: int, session: SessionDep) -> AccountRead:
 
 
 # Route to delete an existing account
-@router.delete("/delete/delete-account/{account_id}")
+@router.delete("/delete/delete-account/{account_id}", status_code=status.HTTP_200_OK)
 def delete_account(account_id: int, session: SessionDep):
     account = session.get(Account, account_id)
     if not account:

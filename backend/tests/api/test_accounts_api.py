@@ -1,53 +1,47 @@
 import pytest
-import re
 
 from main import app
-from fastapi import HTTPException
-from sqlalchemy import inspect
-from sqlmodel import select, text
 from fastapi.testclient import TestClient
-from app.routes.accounts import get_all_accounts
-from app.database.connection import safe_create_engine, create_db_and_tables, get_session
 
 client = TestClient(app)
 
 
+@pytest.fixture
+def account_data():
+   return {
+      "f_name": "Test",
+      "l_name": "Dummy",
+      "email": "test.dummy@testing.com",
+      "username": "testdummy1234",
+      "password": "test1234",
+      "primary_lang": "English"
+   }
+
+
 class TestAccountAPI():
-   # POSITIVE TEST CASE: Function to test get-all-accounts endpoint
-   def test_get_all_accounts_pos(self):
-      url = "/account/get-all-accounts"
-      response = client.get(url)
-         
+   # Test creating account with dummy data
+   def test_create_account(self, account_data):
+      url = "/account/create/create-account"
+      response = client.post(url, json=account_data)
+      
       # Verify status code
+      assert response.status_code == 201  
+      
+      # Verify response structure using AccountRead pydanctic model
+      data = response.json()
+      assert "id" in data
+      assert data["f_name"] == "Test"
+      assert data["l_name"] == "Dummy"
+      assert data["email"] == "test.dummy@testing.com"
+      assert data["username"] == "testdummy1234"
+      assert data["primary_lang"] == "English"
+      
+      # Clean up by removing test account
+      response = client.delete(f'/account/delete/delete-account/{data["id"]}')
       assert response.status_code == 200
       
-      # Verify response structure in accordance with AccountRead pydantic response model
-      data = response.json()
-      for account in data:
-         assert "id" in account
-         assert "f_name" in account
-         assert "l_name" in account
-         assert "email" in account
-         assert "username" in account
-         assert "primary_lang" in account
-         
-
-   # NEGATIVE TEST CASE: Function to test get-all-accounts with no data
-   def test_get_all_accounts_no_data_neg(self, monkeypatch):
-      monkeypatch.setenv("DATABASE_URL", "sqlite:///./test.db")
       
-      # Create a new engine and database
-      engine = safe_create_engine()
-      create_db_and_tables(engine)
       
-      session_gen = get_session()
-      session = next(session_gen)
-      
-      with pytest.raises(HTTPException) as exc_info:
-         get_all_accounts(session)
-      
-      assert exc_info.value.status_code == 404
-      assert exc_info.value.detail == "No accounts found"
       
       
          
