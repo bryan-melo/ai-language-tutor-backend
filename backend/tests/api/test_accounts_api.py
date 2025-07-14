@@ -20,7 +20,7 @@ def account_data():
 
 class TestAccountAPI():
    # Test creating account with dummy data
-   def test_create_account(self, account_data):
+   def test_create_account_pos(self, account_data):
       url = "/account/create/create-account"
       response = client.post(url, json=account_data)
       
@@ -39,6 +39,21 @@ class TestAccountAPI():
       # Clean up by removing test account
       response = client.delete(f'/account/delete/delete-account/{data["id"]}')
       assert response.status_code == 200
+      
+   
+   # Test creating an account with missing required fields (l_name, primary_lang)
+   def test_create_account_neg(self):
+      data = {
+         "f_name": "Name",
+         "email": "name@name.com",
+         "username": "namename",
+         "password": "name1234"
+      }
+      
+      url = "/account/create/create-account"
+      response = client.post(url, json=data)
+      
+      assert response.status_code == 422
       
       
       
