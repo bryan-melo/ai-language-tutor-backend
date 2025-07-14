@@ -52,7 +52,7 @@ def get_all_accounts(session: SessionDep) -> list[Account]:
         select(Account)
     )
 
-    if not accounts:
+    if len(accounts.all()) < 1:
         raise HTTPException(status_code=404, detail="No accounts found")
 
     return accounts

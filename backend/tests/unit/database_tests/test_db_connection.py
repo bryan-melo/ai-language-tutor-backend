@@ -62,7 +62,7 @@ class TestDatabaseConnection:
       
       # Check that session is returned and account table exists
       assert session is not None
-      assert "account" in inspector.get_table_names()
+      assert "account" in tables
       
       
    # Test session with invalid engine
