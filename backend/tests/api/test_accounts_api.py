@@ -149,3 +149,12 @@ class TestAccountAPI():
       for account in accounts:
          delete_response = client.delete(f'/account/delete/delete-account/{account["id"]}')
          assert delete_response.status_code == 200
+
+
+   # Test get all accounts with an empty DB
+   def test_get_all_accounts_with_no_data(self, client):
+      # Get all accounts
+      accounts_response = client.get("/account/get-all-accounts")
+      assert accounts_response.status_code == 200
+      assert len(accounts_response.json()) < 1
+      

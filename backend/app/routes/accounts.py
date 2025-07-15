@@ -34,10 +34,8 @@ def login(request: LoginRequest, session: SessionDep) -> AccountRead:
     account = session.exec(
         select(Account).where(Account.username == request.username)
     ).first()
-
     if not account or not verify_password(request.password, account.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
     return account
 
 
@@ -47,10 +45,8 @@ def get_all_accounts(session: SessionDep) -> list[Account]:
     accounts = session.exec(
         select(Account)
     )
-
-    if len(accounts.all()) < 1:
-        raise HTTPException(status_code=404, detail="No accounts found")
-
+    if accounts.all() is None:
+        return []
     return accounts
 
 
