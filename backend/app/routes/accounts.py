@@ -42,7 +42,7 @@ def login(request: LoginRequest, session: SessionDep) -> AccountRead:
 
 
 # Route to get all accounts in database
-@router.get("/get-all-accounts", response_model=list[AccountRead])
+@router.get("/get-all-accounts", response_model=list[AccountRead], status_code=status.HTTP_200_OK)
 def get_all_accounts(session: SessionDep) -> list[Account]:
     accounts = session.exec(
         select(Account)
