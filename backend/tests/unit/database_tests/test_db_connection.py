@@ -73,4 +73,4 @@ class TestDatabaseConnection:
          session_gen = get_session()
          next(session_gen)
          
-      assert "Database session error" in str(exc_info.value)
+      assert "DATABASE_URL is not set" in str(exc_info.value)

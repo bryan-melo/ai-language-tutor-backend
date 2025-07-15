@@ -3,6 +3,7 @@ from sqlmodel import Session, SQLModel, create_engine
 from dotenv import load_dotenv
 from fastapi import Depends
 from typing import Annotated
+from sqlalchemy.exc import SQLAlchemyError
 
 # Load environment variables
 load_dotenv()
@@ -41,8 +42,8 @@ def get_session():
     try:
         with Session(safe_create_engine()) as session:
             yield session
-    except Exception as e:
-        raise RuntimeError(f'Database session error: {e}')        
+    except SQLAlchemyError as e:
+        raise RuntimeError(f"Database session error: {e}")  
     
 
 # Create session dependency

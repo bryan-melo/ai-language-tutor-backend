@@ -3,8 +3,6 @@ import pytest
 from main import app
 from fastapi.testclient import TestClient
 
-client = TestClient(app)
-
 
 @pytest.fixture
 def account_data():
@@ -16,11 +14,16 @@ def account_data():
       "password": "test1234",
       "primary_lang": "English"
    }
+   
+@pytest.fixture
+def client():
+   with TestClient(app) as c:
+      yield c
 
 
 class TestAccountAPI():
    # Test creating account with dummy data
-   def test_create_account_pos(self, account_data):
+   def test_create_account_pos(self, client, account_data):
       url = "/account/create/create-account"
       response = client.post(url, json=account_data)
       
@@ -42,7 +45,7 @@ class TestAccountAPI():
       
    
    # Test creating an account with missing required fields (l_name, primary_lang)
-   def test_create_account_neg(self):
+   def test_create_account_neg(self, client):
       data = {
          "f_name": "Name",
          "email": "name@name.com",
@@ -57,7 +60,7 @@ class TestAccountAPI():
       
    
    # Test login endpoint using valid credentials
-   def test_login_with_valid_credentials(self, account_data):
+   def test_login_with_valid_credentials(self, client, account_data):
       # Create test account
       create_account_url = "/account/create/create-account"
       create_account_response = client.post(create_account_url, json=account_data)
@@ -89,6 +92,27 @@ class TestAccountAPI():
       # Clean up by removing test account
       response = client.delete(f'/account/delete/delete-account/{login_response_data["id"]}')
       assert response.status_code == 200
+      
+   
+   # Test login endpoint using invalid credentials
+   def test_login_with_invalid_credentials(self, client):
+      # Create dummy data
+      data = {
+         "username": "username",
+         "password": "password"
+      }
+      
+      url = "/account/login"
+      response = client.post(url, json=data)
+      
+      assert response.status_code == 401
+      
+   
+   # Test get all accounts
+   
+   
+      
+      
       
       
       
