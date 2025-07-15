@@ -29,7 +29,7 @@ def create_account(account: AccountCreate, session: SessionDep) -> AccountRead:
 
 
 # Route to login
-@router.post("/login", response_model=AccountRead)
+@router.post("/login", response_model=AccountRead, status_code=status.HTTP_200_OK)
 def login(request: LoginRequest, session: SessionDep) -> AccountRead:
     account = session.exec(
         select(Account).where(Account.username == request.username)
@@ -37,12 +37,8 @@ def login(request: LoginRequest, session: SessionDep) -> AccountRead:
 
     if not account or not verify_password(request.password, account.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    db_account = session.get(Account, account.id)
-    if not db_account:
-        raise HTTPException(status_code=404, detail="Account not found")
-
-    return db_account
+    
+    return account
 
 
 # Route to get all accounts in database
