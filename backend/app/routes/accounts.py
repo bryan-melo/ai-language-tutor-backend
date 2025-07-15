@@ -51,7 +51,7 @@ def get_all_accounts(session: SessionDep) -> list[Account]:
 
 
 # Route to get an account using account id
-@router.get("/get-account/{account_id}", response_model=AccountRead)
+@router.get("/get-account/{account_id}", response_model=AccountRead, status_code=status.HTTP_200_OK)
 def get_account(account_id: int, session: SessionDep) -> AccountRead:
     account = session.get(Account, account_id)
     if not account:
@@ -60,14 +60,14 @@ def get_account(account_id: int, session: SessionDep) -> AccountRead:
 
 
 # Route to delete an existing account
-@router.delete("/delete/delete-account/{account_id}", status_code=status.HTTP_200_OK)
+@router.delete("/delete/delete-account/{account_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_account(account_id: int, session: SessionDep):
     account = session.get(Account, account_id)
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
     session.delete(account)
     session.commit()
-    return {"ok": True}
+    return 
 
 
 # Route to log out
