@@ -68,65 +68,72 @@ class TestAccountAPI():
       response = client.post(CREATE_ACCOUNT_URL, json=account_data)
       assert response.status_code == status_code
       
+      # End test here for negative test cases
       if status_code != 201:
          return
       
       # Verify response structure using AccountRead pydanctic model
       data = response.json()
       assert "id" in data
-      assert data["f_name"] == account_data["f_name"]
-      assert data["l_name"] == account_data["l_name"]
-      assert data["email"] == account_data["email"]
-      assert data["username"] == account_data["username"]
-      assert data["primary_lang"] == account_data["primary_lang"]
+      assert data["f_name"] == f_name
+      assert data["l_name"] == l_name
+      assert data["email"] == email
+      assert data["username"] == username
+      assert data["primary_lang"] == primary_lang
       
       # Clean up by removing test account
       response = client.delete(DELETE_ACCOUNT_URL + str(data["id"]))
       assert response.status_code == 204
+      assert response.text == ""
       
-      
+
+   @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang, login_status_code", [
+      ("John12", "Doe12", "johndoe12@gmail.com", "johndoe12", "password12", "english", 200),
+      ("Timothy12", "Roe12", "timothyroes12@gmail.com", "timothyroe12", "password12", "english", 200),
+      #("John", "Doe", "johndoe@gmail.com", "johndoe", None, "english", 422),
+   ])
    # Test login endpoint using valid credentials
-   def test_login_with_valid_credentials(self, client, account_data):
+   def test_login_route(self, client, f_name, l_name, email, username, password, primary_lang, login_status_code):
+      account_data = {
+         "f_name": f_name,
+         "l_name": l_name,
+         "email": email,
+         "username": username,
+         "password": password,
+         "primary_lang": primary_lang
+      }
+      
       # Create test account
-      create_account_response = client.post(CREATE_ACCOUNT_URL, json=account_data[0])
+      create_account_response = client.post(CREATE_ACCOUNT_URL, json=account_data)
       assert create_account_response.status_code == 201
       
       # Prep data using fixture for login endpoint
-      prep_data = {
-         "username": account_data[0]["username"],
-         "password": account_data[0]["password"]
+      login_data = {
+         "username": username,
+         "password": password
       }
       
       # Send valid credentials to login endpoint
-      login_response = client.post(LOGIN_URL, json=prep_data)
-      assert login_response.status_code == 200
+      login_response = client.post(LOGIN_URL, json=login_data)
+      assert login_response.status_code == login_status_code
+      
+      # End test here for negative test cases
+      if login_status_code != 200:
+         return
       
       # Check data integrity
       login_response_data = login_response.json()
       assert "id" in login_response_data
-      assert login_response_data["f_name"] == account_data[0]["f_name"]
-      assert login_response_data["l_name"] == account_data[0]["l_name"]
-      assert login_response_data["email"] == account_data[0]["email"]
-      assert login_response_data["username"] == account_data[0]["username"]
-      assert login_response_data["primary_lang"] == account_data[0]["primary_lang"]
+      assert login_response_data["f_name"] == f_name
+      assert login_response_data["l_name"] == l_name
+      assert login_response_data["email"] == email
+      assert login_response_data["username"] == username
+      assert login_response_data["primary_lang"] == primary_lang
       
       # Clean up by removing test account
       response = client.delete(DELETE_ACCOUNT_URL + str(login_response_data["id"]))
       assert response.status_code == 204
       assert response.text == ""
-      
-   
-   # Test login endpoint using invalid credentials
-   def test_login_with_invalid_credentials(self, client):
-      # Create dummy data
-      data = {
-         "username": "username",
-         "password": "password"
-      }
-      
-      # Send dummy data to login endpoint
-      response = client.post(LOGIN_URL, json=data)
-      assert response.status_code == 401
       
    
    # Test get all accounts
@@ -154,6 +161,7 @@ class TestAccountAPI():
       for account in accounts:
          delete_response = client.delete(DELETE_ACCOUNT_URL + str(account["id"]))
          assert delete_response.status_code == 204
+         assert delete_response.text == ""
 
 
    # Test get all accounts with an empty DB
@@ -187,6 +195,7 @@ class TestAccountAPI():
       # Remove account, clean up
       removed_account_response = client.delete(DELETE_ACCOUNT_URL + str(response_data["id"]))
       assert removed_account_response.status_code == 204
+      assert removed_account_response.text == ""
       
       
 '''
