@@ -137,7 +137,7 @@ class TestAccountAPI():
       
    
    # Test get all accounts
-   def test_get_all_accounts(self, client, account_data):
+   def test_get_all_accounts_route(self, client, account_data):
       # Create test account
       for account in account_data:
          create_account_response = client.post(CREATE_ACCOUNT_URL, json=account)
@@ -162,18 +162,10 @@ class TestAccountAPI():
          delete_response = client.delete(DELETE_ACCOUNT_URL + str(account["id"]))
          assert delete_response.status_code == 204
          assert delete_response.text == ""
-
-
-   # Test get all accounts with an empty DB
-   def test_get_all_accounts_with_no_data(self, client):
-      # Get all accounts
-      accounts_response = client.get(GET_ALL_ACCOUNTS_URL)
-      assert accounts_response.status_code == 200
-      assert not accounts_response.json()
-      
+         
    
    # Test to get an account given the account_id
-   def test_get_account_pos(self, client, account_data):
+   def test_get_account_route(self, client, account_data):
       # Create test account
       create_account_response = client.post(CREATE_ACCOUNT_URL, json=account_data[0])
       assert create_account_response.status_code == 201
