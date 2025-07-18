@@ -205,6 +205,8 @@ class TestAccountAPI():
       
       
 '''
-   Needs fixing: Create account currently allows Null or None to be passed into the DB, causing issues 
+   - Implement test for test a single account using mark.parametrize
+   - Login route needs negative test cases
+   - Needs fixing: Create account currently allows Null or None to be passed into the DB, causing issues 
    when using get all accounts route
 '''
