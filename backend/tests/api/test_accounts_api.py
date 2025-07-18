@@ -10,36 +10,6 @@ GET_ALL_ACCOUNTS_URL = "/account/get-all-accounts"
 GET_ACCOUNT_URL = "/account/get-account/"
 DELETE_ACCOUNT_URL = "/account/delete/delete-account/"
 
-
-@pytest.fixture
-def account_data():
-   return [
-      {
-         "f_name": "test10",
-         "l_name": "dummy10",
-         "email": "test10@test.com",
-         "username": "test10",
-         "password": "test10",
-         "primary_lang": "test"
-      },
-      {
-         "f_name": "test20",
-         "l_name": "dummy20",
-         "email": "test20@test.com",
-         "username": "test20",
-         "password": "test20",
-         "primary_lang": "test"
-      },
-      {
-         "f_name": "test30",
-         "l_name": "dummy30",
-         "email": "test30@test.com",
-         "username": "test30",
-         "password": "test30",
-         "primary_lang": "test"
-      },
-   ]
-   
    
 @pytest.fixture
 def client():
@@ -135,11 +105,24 @@ class TestAccountAPI():
       assert response.status_code == 204
       assert response.text == ""
       
-      
+   @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang", [
+      ("test1", "test1", "test1@test.com", "test1", "test1", "english"),
+      ("test2", "test2", "test2@test.com", "test2", "test2", "english"),
+      ("test3", "test3", "test3@test.com", "test3", "test3", "english"),
+      ("test4", "test4", "test4@test.com", "test4", "test4", "english")
+   ])
    # Test to get an account given the account_id
-   def test_get_account_route(self, client, account_data):
+   def test_get_account_route(self, client, f_name, l_name, email, username, password, primary_lang):
       # Create test account
-      create_account_response = client.post(CREATE_ACCOUNT_URL, json=account_data[0])
+      account_data = {
+         "f_name": f_name,
+         "l_name": l_name,
+         "email": email,
+         "username": username,
+         "password": password,
+         "primary_lang": primary_lang
+      }
+      create_account_response = client.post(CREATE_ACCOUNT_URL, json=account_data)
       assert create_account_response.status_code == 201
       
       # Get accound by id
@@ -150,11 +133,11 @@ class TestAccountAPI():
       # Verify data
       response_data = get_account_response.json()
       assert "id" in response_data
-      assert response_data["f_name"] == account_data[0]["f_name"]
-      assert response_data["l_name"] == account_data[0]["l_name"]
-      assert response_data["email"] == account_data[0]["email"]
-      assert response_data["username"] == account_data[0]["username"]
-      assert response_data["primary_lang"] == account_data[0]["primary_lang"]
+      assert response_data["f_name"] == f_name
+      assert response_data["l_name"] == l_name
+      assert response_data["email"] == email
+      assert response_data["username"] == username
+      assert response_data["primary_lang"] == primary_lang
       
       # Remove account, clean up
       removed_account_response = client.delete(DELETE_ACCOUNT_URL + str(response_data["id"]))
@@ -205,8 +188,8 @@ class TestAccountAPI():
       
       
 '''
-   - Implement test for test a single account using mark.parametrize
+   - Get account needs negative test cases
    - Login route needs negative test cases
    - Needs fixing: Create account currently allows Null or None to be passed into the DB, causing issues 
-   when using get all accounts route
+      when using get all accounts or get account route
 ''' 
