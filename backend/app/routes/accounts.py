@@ -45,8 +45,6 @@ def get_all_accounts(session: SessionDep) -> list[Account]:
     accounts = session.exec(
         select(Account)
     )
-    if accounts.all() is None:
-        return []
     return accounts
 
 

@@ -15,27 +15,27 @@ DELETE_ACCOUNT_URL = "/account/delete/delete-account/"
 def account_data():
    return [
       {
-         "f_name": "test1",
-         "l_name": "dummy1",
-         "email": "test1@test.com",
-         "username": "test1",
-         "password": "test1",
+         "f_name": "test10",
+         "l_name": "dummy10",
+         "email": "test10@test.com",
+         "username": "test10",
+         "password": "test10",
          "primary_lang": "test"
       },
       {
-         "f_name": "test2",
-         "l_name": "dummy2",
-         "email": "test2@test.com",
-         "username": "test2",
-         "password": "test2",
+         "f_name": "test20",
+         "l_name": "dummy20",
+         "email": "test20@test.com",
+         "username": "test20",
+         "password": "test20",
          "primary_lang": "test"
       },
       {
-         "f_name": "test3",
-         "l_name": "dummy3",
-         "email": "test3@test.com",
-         "username": "test3",
-         "password": "test3",
+         "f_name": "test30",
+         "l_name": "dummy30",
+         "email": "test30@test.com",
+         "username": "test30",
+         "password": "test30",
          "primary_lang": "test"
       },
    ]
@@ -135,35 +135,7 @@ class TestAccountAPI():
       assert response.status_code == 204
       assert response.text == ""
       
-   
-   # Test get all accounts
-   def test_get_all_accounts_route(self, client, account_data):
-      # Create test account
-      for account in account_data:
-         create_account_response = client.post(CREATE_ACCOUNT_URL, json=account)
-         assert create_account_response.status_code == 201
-
-      # Get all accounts
-      response = client.get(GET_ALL_ACCOUNTS_URL)
-      assert response.status_code == 200
       
-      # Check response data 
-      accounts = response.json()
-      for account in accounts:
-         assert "id" in account
-         assert "test" in account["f_name"]
-         assert "test" in account["l_name"]
-         assert "@test.com" in account["email"]
-         assert "test" in account["username"]
-         assert "test" in account["primary_lang"]
-         
-      # Delete test accounts, clean up
-      for account in accounts:
-         delete_response = client.delete(DELETE_ACCOUNT_URL + str(account["id"]))
-         assert delete_response.status_code == 204
-         assert delete_response.text == ""
-         
-   
    # Test to get an account given the account_id
    def test_get_account_route(self, client, account_data):
       # Create test account
@@ -190,7 +162,49 @@ class TestAccountAPI():
       assert removed_account_response.text == ""
       
       
+   # Test get all accounts
+   def test_get_all_accounts_route(self, client):
+      # Create multiple test accounts
+      test_accounts = [
+         {
+               "f_name": f"test{i}",
+               "l_name": f"test{i}",
+               "email": f"test{i}@test.com",
+               "username": f"test{i}",
+               "password": f"test{i}",
+               "primary_lang": "english"
+         }
+         for i in range(1, 5)
+      ]
+
+      for account in test_accounts:
+         create_account_response = client.post(CREATE_ACCOUNT_URL, json=account)
+         assert create_account_response.status_code == 201
+
+      # Fetch all accounts
+      response = client.get(GET_ALL_ACCOUNTS_URL)
+      assert response.status_code == 200
+      accounts = response.json()
+
+      # Filter only test accounts
+      test_entries = [account for account in accounts if account["f_name"].startswith("test")]
+
+      # Validate each test entry
+      for i, account in enumerate(test_entries):
+         assert account["f_name"] == test_accounts[i]["f_name"]
+         assert account["l_name"] == test_accounts[i]["l_name"]
+         assert account["email"] == test_accounts[i]["email"]
+         assert account["username"] == test_accounts[i]["username"]
+         assert account["primary_lang"] == test_accounts[i]["primary_lang"]
+
+      # Cleanup test accounts
+      for account in test_entries:
+         delete_response = client.delete(f"{DELETE_ACCOUNT_URL}{account['id']}")
+         assert delete_response.status_code == 204
+         assert delete_response.text == ""
+      
+      
 '''
-Need to create fixture for deleting account
-Need fixture for creating an account
+   Needs fixing: Create account currently allows Null or None to be passed into the DB, causing issues 
+   when using get all accounts route
 '''
