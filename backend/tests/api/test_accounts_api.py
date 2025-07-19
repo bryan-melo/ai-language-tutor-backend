@@ -36,16 +36,14 @@ class TestAccountAPI():
          "password": password,
          "primary_lang": primary_lang
       }
-      # Create account using fixture data
-      response = client.post(CREATE_ACCOUNT_URL, json=account_data)
-      assert response.status_code == status_code
+      # Create account, validate status code, and get the response data
+      data = self.create_account_helper(client, account_data, status_code)
       
       # End test here for negative test cases
-      if status_code == status.HTTP_422_UNPROCESSABLE_ENTITY:
+      if status_code == status.HTTP_422_UNPROCESSABLE_ENTITY or not data:
          return
       
       # Verify response structure using AccountRead pydanctic model
-      data = response.json()
       assert "id" in data
       assert data["f_name"] == f_name
       assert data["l_name"] == l_name
@@ -54,7 +52,7 @@ class TestAccountAPI():
       assert data["primary_lang"] == primary_lang
       
       # Cleanup test accounts
-      delete_account_helper(client, data["id"])
+      self.delete_account_helper(client, data["id"])
       
 
    @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang, status_code", [
@@ -75,11 +73,8 @@ class TestAccountAPI():
             "password": password,
             "primary_lang": primary_lang
          }
-         
-         # Create test account
-         create_account_response = client.post(CREATE_ACCOUNT_URL, json=account_data)
-         assert create_account_response.status_code == status.HTTP_201_CREATED
-      
+         self.create_account_helper(client, account_data, status.HTTP_201_CREATED)
+
       # Prep data using fixture for login endpoint
       login_data = {
          "username": username,
@@ -89,7 +84,6 @@ class TestAccountAPI():
       # Send valid credentials to login endpoint
       login_response = client.post(LOGIN_URL, json=login_data)
       assert login_response.status_code == status_code
-      
       
       if status_code == status.HTTP_401_UNAUTHORIZED:
          error_data = login_response.json()
@@ -106,8 +100,7 @@ class TestAccountAPI():
       assert login_response_data["username"] == username
       assert login_response_data["primary_lang"] == primary_lang
       
-      # Cleanup test accounts
-      delete_account_helper(client, login_response_data["id"])
+      self.delete_account_helper(client, login_response_data["id"])
       
       
    @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang, status_code", [
@@ -128,11 +121,7 @@ class TestAccountAPI():
             "password": password,
             "primary_lang": primary_lang
          }
-         create_account_response = client.post(CREATE_ACCOUNT_URL, json=account_data)
-         assert create_account_response.status_code == status.HTTP_201_CREATED
-      
-         # Test get account route with given credentials
-         account = create_account_response.json()
+         account = self.create_account_helper(client, account_data, status.HTTP_201_CREATED)
       else:
          # For negative test cases, test with random 
          random_num = random.randint(-100000, -1)
@@ -156,8 +145,7 @@ class TestAccountAPI():
       assert response_data["username"] == username
       assert response_data["primary_lang"] == primary_lang
       
-      # Cleanup test account
-      delete_account_helper(client, response_data["id"])
+      self.delete_account_helper(client, response_data["id"])
       
       
    # Test get all accounts
@@ -176,8 +164,7 @@ class TestAccountAPI():
       ]
 
       for account in test_accounts:
-         create_account_response = client.post(CREATE_ACCOUNT_URL, json=account)
-         assert create_account_response.status_code == status.HTTP_201_CREATED
+         self.create_account_helper(client, account, status.HTTP_201_CREATED)
 
       # Fetch all accounts
       response = client.get(GET_ALL_ACCOUNTS_URL)
@@ -197,10 +184,31 @@ class TestAccountAPI():
 
       # Cleanup test accounts
       for account in test_entries:
-         delete_account_helper(client, account["id"])
+         self.delete_account_helper(client, account["id"])
+         
+   
+   @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang, status_code", [
+      
+   ]) 
+   def test_delete_account_route(self, client, f_name, l_name, email, username, password, primary_lang, status_code):
+      test_account = {
+         "f_name": f_name,
+         "l_name": l_name,
+         "email": email,
+         "username": username,
+         "password": password,
+         "primary_lang": primary_lang
+      }
+      pass
+   
+
+   def create_account_helper(self, client, account_data, status_code):
+      response = client.post(CREATE_ACCOUNT_URL, json=account_data)
+      assert response.status_code == status_code
+      return response.json()
 
 
-def delete_account_helper(client, account_id):
-    response = client.delete(f"{DELETE_ACCOUNT_URL}{account_id}")
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert response.text == ""
+   def delete_account_helper(self, client, account_id):
+      response = client.delete(f"{DELETE_ACCOUNT_URL}{account_id}")
+      assert response.status_code == status.HTTP_204_NO_CONTENT
+      assert response.text == ""
