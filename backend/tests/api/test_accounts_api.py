@@ -20,7 +20,12 @@ def client():
 
 
 class TestAccountAPI():
-   # Test create account endpoint
+   # <---------------------------->
+   #   Account API Endpoint Tests
+   # <---------------------------->
+   '''
+   
+   '''
    @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang, status_code", [
       ("John", "Doe", "johndoe@gmail.com", "johndoe", "password", "english", status.HTTP_201_CREATED),  # positive test 
       ("Peter", "Jackson", "peterjackson@gmail.com", "peterjackson", "password", "english", status.HTTP_201_CREATED), # positive test 
@@ -37,31 +42,28 @@ class TestAccountAPI():
          "primary_lang": primary_lang
       }
       # Create account, validate status code, and get the response data
-      data = self.create_account_helper(client, account_data, status_code)
+      account_data = self.create_account_helper(client, account_data, status_code)
       
       # End test here for negative test cases
-      if status_code == status.HTTP_422_UNPROCESSABLE_ENTITY or not data:
+      if status_code == status.HTTP_422_UNPROCESSABLE_ENTITY or not account_data:
          return
       
-      # Verify response structure using AccountRead pydanctic model
-      assert "id" in data
-      assert data["f_name"] == f_name
-      assert data["l_name"] == l_name
-      assert data["email"] == email
-      assert data["username"] == username
-      assert data["primary_lang"] == primary_lang
-      
+      # Validate account data
+      assert self.validate_account_helper(account_data, f_name, l_name, email, username, primary_lang) == "Credentials have been verified"
+            
       # Cleanup test accounts
-      self.delete_account_helper(client, data["id"])
+      assert self.delete_account_helper(client, account_data["id"]) == "Account deleted"
       
 
+   '''
+   
+   '''
    @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang, status_code", [
       ("John", "Doe", "johndoe@gmail.com", "johndoe", "johndoe", "english", status.HTTP_200_OK),    # positive test 
       ("Timothy", "Roe", "timothyroes@gmail.com", "timothyroe", "password", "english", status.HTTP_200_OK),   # positive test 
       (None, None, None, "johndoe", "johndoe", None, status.HTTP_401_UNAUTHORIZED),     # negative test 
       (None, None, None, "timothyroe", "password1234", None, status.HTTP_401_UNAUTHORIZED)     # negative test 
    ])
-   # Test login endpoint using valid credentials
    def test_login_route(self, client, f_name, l_name, email, username, password, primary_lang, status_code):
       # Skip account creation for negative test cases (invalid credentials)
       if status_code == status.HTTP_200_OK:
@@ -73,6 +75,7 @@ class TestAccountAPI():
             "password": password,
             "primary_lang": primary_lang
          }
+         # Create account, validate status code, and get the response data
          self.create_account_helper(client, account_data, status.HTTP_201_CREATED)
 
       # Prep data using fixture for login endpoint
@@ -91,25 +94,23 @@ class TestAccountAPI():
          assert error_data["detail"] == "Invalid credentials"
          return
       
-      # Check data integrity
-      login_response_data = login_response.json()
-      assert "id" in login_response_data
-      assert login_response_data["f_name"] == f_name
-      assert login_response_data["l_name"] == l_name
-      assert login_response_data["email"] == email
-      assert login_response_data["username"] == username
-      assert login_response_data["primary_lang"] == primary_lang
+      # Validate account data
+      account_data = login_response.json()
+      assert self.validate_account_helper(account_data, f_name, l_name, email, username, primary_lang) == "Credentials have been verified"
       
-      self.delete_account_helper(client, login_response_data["id"])
+      # Cleanup test accounts
+      assert self.delete_account_helper(client, account_data["id"]) == "Account deleted"
       
       
+   '''
+   
+   '''
    @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang, status_code", [
       ("test1", "test1", "test1@test.com", "test1", "test1", "english", status.HTTP_200_OK),   # positive test 
       ("test2", "test2", "test2@test.com", "test2", "test2", "english", status.HTTP_200_OK),   # positive test
       (None, None, None, None, None, None, status.HTTP_404_NOT_FOUND),   # negative test
       (None, None, None, None, None, None, status.HTTP_404_NOT_FOUND)    # negative test
    ])
-   # Test to get an account given the account_id
    def test_get_account_route(self, client, f_name, l_name, email, username, password, primary_lang, status_code):
       # Create test accounts for inputs with valid credentials
       if status_code == status.HTTP_200_OK:
@@ -121,6 +122,7 @@ class TestAccountAPI():
             "password": password,
             "primary_lang": primary_lang
          }
+         # Create account, validate status code, and get the response data
          account = self.create_account_helper(client, account_data, status.HTTP_201_CREATED)
       else:
          # For negative test cases, test with random 
@@ -136,19 +138,17 @@ class TestAccountAPI():
          assert error_data["detail"] == "Account not found"
          return
       
-      # Verify data
-      response_data = get_account_response.json()
-      assert "id" in response_data
-      assert response_data["f_name"] == f_name
-      assert response_data["l_name"] == l_name
-      assert response_data["email"] == email
-      assert response_data["username"] == username
-      assert response_data["primary_lang"] == primary_lang
+      # Validate account data
+      account_data = get_account_response.json()
+      assert self.validate_account_helper(account_data, f_name, l_name, email, username, primary_lang) == "Credentials have been verified"
       
-      self.delete_account_helper(client, response_data["id"])
+      # Cleanup test accounts
+      assert self.delete_account_helper(client, account["id"]) == "Account deleted"
       
       
-   # Test get all accounts
+   '''
+   
+   '''
    def test_get_all_accounts_route(self, client):
       # Create multiple test accounts
       test_accounts = [
@@ -164,6 +164,7 @@ class TestAccountAPI():
       ]
 
       for account in test_accounts:
+         # Create account, validate status code, and get the response data
          self.create_account_helper(client, account, status.HTTP_201_CREATED)
 
       # Fetch all accounts
@@ -184,9 +185,12 @@ class TestAccountAPI():
 
       # Cleanup test accounts
       for account in test_entries:
-         self.delete_account_helper(client, account["id"])
+         assert self.delete_account_helper(client, account["id"]) == "Account deleted"
          
    
+   '''
+   
+   '''
    @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang, status_code", [
       
    ]) 
@@ -201,14 +205,37 @@ class TestAccountAPI():
       }
       pass
    
-
+   
+   # <------------------>
+   #   Helper functions
+   # <------------------>
+   '''
+   
+   '''
    def create_account_helper(self, client, account_data, status_code):
       response = client.post(CREATE_ACCOUNT_URL, json=account_data)
       assert response.status_code == status_code
       return response.json()
+   
+   
+   '''
+   
+   '''
+   def validate_account_helper(self, account, f_name, l_name, email, username, primary_lang):
+      assert "id" in account
+      assert account["f_name"] == f_name
+      assert account["l_name"] == l_name
+      assert account["email"] == email
+      assert account["username"] == username
+      assert account["primary_lang"] == primary_lang
+      return "Credentials have been verified"
+      
 
-
+   '''
+   
+   '''
    def delete_account_helper(self, client, account_id):
       response = client.delete(f"{DELETE_ACCOUNT_URL}{account_id}")
       assert response.status_code == status.HTTP_204_NO_CONTENT
       assert response.text == ""
+      return "Account deleted"
