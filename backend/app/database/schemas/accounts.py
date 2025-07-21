@@ -1,5 +1,6 @@
-from sqlmodel import Field, SQLModel
-from datetime import datetime
+from app.models.course_models import SupportedLanguages
+
+from sqlmodel import Field, SQLModel, Column, Enum as SqlEnum
 from typing import Optional
 
 
@@ -28,29 +29,7 @@ class Account(SQLModel, table=True):
    password: str = Field(
       description="Password for account that will be used for login"
    )
-   primary_lang: str = Field(
-      description="Primary language used for default language to translate to"
-   )
-   
-   
-class AuthToken(SQLModel, table=True):
-   id: Optional[int] = Field(
-      default=None,
-      primary_key=True,
-      description="Unique identifier for the authentication token"
-   )
-   account_id: int = Field(
-      foreign_key="account.id",
-      description="ID of the account associated with this token"
-   )
-   token: str = Field(
-      unique=True,
-      index=True,
-      description="Authentication token string"
-   )
-   created_at: datetime = Field(
-      description="Timestamp when the token was created"
-   )
-   expires_at: datetime = Field(
-      description="Timestamp when the token expires"
+   primary_lang: SupportedLanguages = Field(
+        sa_column=Column(SqlEnum(SupportedLanguages)),
+        description="Primary language used for translation"
     )
