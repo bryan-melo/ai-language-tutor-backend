@@ -33,7 +33,7 @@ class TestAccountAPI():
    @pytest.mark.parametrize("account_data, status_code", [
       ({"f_name": "John", "l_name": "Doe", "email": "johndoe@gmail.com", "username": "johndoe", "password": "password", "primary_lang": "english"}, status.HTTP_201_CREATED),
       ({"f_name": "Peter", "l_name": "Jackson", "email": "peterjackson@gmail.com", "username": "peterjackson", "password": "password", "primary_lang": "english"}, status.HTTP_201_CREATED),
-      ({"f_name": "Bobby", "l_name": None, "email": None, "username": None, "password": "password", "primary_lang": "english"}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+      ({"f_name": "Bobby", "l_name": "Matthew", "email": "bobbymatthrew@gmail.com", "username": "Bobby", "password": "Bobby", "primary_lang": "japanese"}, status.HTTP_422_UNPROCESSABLE_ENTITY),
       ({"f_name": None, "l_name": None, "email": None, "username": None, "password": None, "primary_lang": None}, status.HTTP_422_UNPROCESSABLE_ENTITY),
    ])
    def test_create_account_route(self, client: TestClient, account_data: dict[str, Any], status_code: int):
