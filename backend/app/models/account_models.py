@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+from app.models.course_models import SupportedLanguages
 
 
 class AccountCreate(BaseModel):
@@ -7,7 +8,9 @@ class AccountCreate(BaseModel):
     email: str
     username: str
     password: str
-    primary_lang: str
+    primary_lang: SupportedLanguages
+    
+    model_config = ConfigDict(from_attributes=True)
     
 
 class AccountRead(BaseModel):
@@ -16,7 +19,7 @@ class AccountRead(BaseModel):
    l_name: str
    email: str
    username: str
-   primary_lang: str
+   primary_lang: SupportedLanguages
    
    model_config = ConfigDict(from_attributes=True)
    
