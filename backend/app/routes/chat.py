@@ -25,12 +25,12 @@ async def chat_with_gpt(request: ChatRequest):
 
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": request.user_input},
+            {"role": "user", "content": request.user_input}
         ]
 
         response = await async_client.chat.completions.create(
             model="gpt-4",
-            messages=messages,
+            messages=messages, # type: ignore
         )
         return {"response": response.choices[0].message.content}
     except Exception as e:

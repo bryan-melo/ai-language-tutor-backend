@@ -25,7 +25,7 @@ def create_account(account: AccountCreate, session: SessionDep) -> AccountRead:
     session.add(db_account)
     session.commit()
     session.refresh(db_account)
-    return db_account
+    return AccountRead.model_validate(db_account)
 
 
 # Route to login
@@ -36,7 +36,7 @@ def login(request: LoginRequest, session: SessionDep) -> AccountRead:
     ).first()
     if not account or not verify_password(request.password, account.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    return account
+    return AccountRead.model_validate(account)
 
 
 # Route to get all accounts in database
@@ -45,7 +45,7 @@ def get_all_accounts(session: SessionDep) -> list[Account]:
     accounts = session.exec(
         select(Account)
     )
-    return accounts
+    return [Account.model_validate(account) for account in accounts]
 
 
 # Route to get an account using account id
@@ -54,7 +54,7 @@ def get_account(account_id: int, session: SessionDep) -> AccountRead:
     account = session.get(Account, account_id)
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
-    return account
+    return AccountRead.model_validate(account)
 
 
 # Route to delete an existing account

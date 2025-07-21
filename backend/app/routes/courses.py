@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.database.connection import SessionDep
 from app.database.schemas import Course
+from sqlmodel import select
 
 router = APIRouter()
 
@@ -11,18 +12,19 @@ def create_course(course: Course, session: SessionDep) -> Course:
    session.add(course)
    session.commit()
    session.refresh(course)
-   return course
+   return Course.model_validate(course)
 
 
 # Route to get all courses in database
 @router.get("/get-all-courses", response_model=list[Course])
 def get_all_courses(session: SessionDep) -> list[Course]:
-   courses = session.query(Course).all()
+   statement = select(Course)
+   courses = session.exec(statement).all()
    
    if not courses:
       raise HTTPException(status_code=404, detail="No courses found")
 
-   return courses
+   return [Course.model_validate(course) for course in courses]
 
 
 # Route to get a course using course id
@@ -31,7 +33,7 @@ def get_course(course_id: int, session: SessionDep) -> Course:
    course = session.get(Course, course_id)
    if not course:
       raise HTTPException(status_code=404, detail="Course not found")
-   return course
+   return Course.model_validate(course)
 
 
 # Route to delete an existing course
