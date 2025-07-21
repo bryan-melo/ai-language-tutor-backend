@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class AccountCreate(BaseModel):
@@ -18,7 +18,10 @@ class AccountRead(BaseModel):
    username: str
    primary_lang: str
    
+   model_config = ConfigDict(from_attributes=True)
+   
    
 class LoginRequest(BaseModel):
    username: str
    password: str
+   
