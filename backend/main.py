@@ -33,8 +33,10 @@ app.add_middleware(
 )
 
     
+from typing import Dict, Any
+
 @app.get("/")
-def read_root():
+def read_root() -> Dict[str, Any]:
     return {
         "message": "Welcome to the AI Language Tutor API",
         "version": "1.0",
