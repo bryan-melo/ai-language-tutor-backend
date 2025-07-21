@@ -24,7 +24,7 @@ def get_all_courses(session: SessionDep) -> list[Course]:
    if not courses:
       raise HTTPException(status_code=404, detail="No courses found")
 
-   return [Course.model_validate(course) for course in courses]
+   return [Course.model_validate(course.model_dump()) for course in courses]
 
 
 # Route to get a course using course id
@@ -33,7 +33,7 @@ def get_course(course_id: int, session: SessionDep) -> Course:
    course = session.get(Course, course_id)
    if not course:
       raise HTTPException(status_code=404, detail="Course not found")
-   return Course.model_validate(course)
+   return Course.model_validate(course.model_dump())
 
 
 # Route to delete an existing course
