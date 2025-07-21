@@ -22,7 +22,7 @@ DELETE_ACCOUNT_URL = "/account/delete/delete-account/"
    
 @pytest.fixture
 def client():
-   with TestClient(app) as c: # type: ignore
+   with TestClient(app) as c:
       yield c
 
 
