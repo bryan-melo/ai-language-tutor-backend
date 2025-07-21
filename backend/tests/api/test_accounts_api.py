@@ -1,9 +1,16 @@
 import pytest
 import random
 
+# Local file
 from main import app
+from app.database.schemas import Account
+from app.models.account_models import LoginRequest
+
+from typing import Any
 from fastapi import status
+from pydantic import ValidationError
 from fastapi.testclient import TestClient
+
 
 # API URLS constants
 CREATE_ACCOUNT_URL = "/account/create/create-account"
@@ -23,153 +30,159 @@ class TestAccountAPI():
    # <---------------------------->
    #   Account API Endpoint Tests
    # <---------------------------->
-   """
-   Tests account creation with valid and invalid inputs.
-
-   - Expects 201 for valid input with all required fields
-   - Expects 422 for missing or invalid fields
-
-   Valid accounts are verified and deleted after creation.
-   """
-   @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang, status_code", [
-      ("John", "Doe", "johndoe@gmail.com", "johndoe", "password", "english", status.HTTP_201_CREATED),  # positive test 
-      ("Peter", "Jackson", "peterjackson@gmail.com", "peterjackson", "password", "english", status.HTTP_201_CREATED), # positive test 
-      ("Bobby", None, None, "bobbyjones", "english", "password", status.HTTP_422_UNPROCESSABLE_ENTITY),   # negative test 
-      (None, None, None, None, None, None, status.HTTP_422_UNPROCESSABLE_ENTITY) # negative test 
+   @pytest.mark.parametrize("account_data, status_code", [
+      ({"f_name": "John", "l_name": "Doe", "email": "johndoe@gmail.com", "username": "johndoe", "password": "password", "primary_lang": "english"}, status.HTTP_201_CREATED),
+      ({"f_name": "Peter", "l_name": "Jackson", "email": "peterjackson@gmail.com", "username": "peterjackson", "password": "password", "primary_lang": "english"}, status.HTTP_201_CREATED),
+      ({"f_name": "Bobby", "l_name": None, "email": None, "username": None, "password": "password", "primary_lang": "english"}, status.HTTP_422_UNPROCESSABLE_ENTITY),
+      ({"f_name": None, "l_name": None, "email": None, "username": None, "password": None, "primary_lang": None}, status.HTTP_422_UNPROCESSABLE_ENTITY),
    ])
-   def test_create_account_route(self, client, f_name, l_name, email, username, password, primary_lang, status_code):
-      account_data = {
-         "f_name": f_name,
-         "l_name": l_name,
-         "email": email,
-         "username": username,
-         "password": password,
-         "primary_lang": primary_lang
-      }
-      # Create account, validate status code, and get the response data
-      account_data = self.create_account(client, account_data, status_code)
+   def test_create_account_route(self, client: TestClient, account_data: dict[str, Any], status_code: int):
+      """
+      Tests account creation with valid and invalid inputs. 
+      Valid accounts are verified and deleted after creation.
+
+      - Expects 201 for valid input with all required fields
+      - Expects 422 for missing or invalid fields
+      """
+      # Validate input data using Pydantic model before sending request
+      if status_code == status.HTTP_201_CREATED:
+         validated_account = Account.model_validate(account_data)
+         assert isinstance(validated_account, Account), f"Expected Account instance, got {type(validated_account)}"
+      else:
+         with pytest.raises(ValidationError):
+            Account.model_validate(account_data)
+            
+      # Send request and assert status
+      response_data = self.create_account(client, account_data, status_code)
       
-      # End test here for negative test cases
-      if status_code == status.HTTP_422_UNPROCESSABLE_ENTITY or not account_data:
+      # End test early for expected failure
+      if status_code == status.HTTP_422_UNPROCESSABLE_ENTITY or not response_data:
          return
       
-      # Validate account data
-      self.validate_account(account_data, f_name, l_name, email, username, primary_lang)
+      # Validate fields match expected values
+      self.validate_account(
+         response_data,    
+         account_data["f_name"],
+         account_data["l_name"],    
+         account_data["email"], 
+         account_data["username"], 
+         account_data["primary_lang"]
+      )
             
-      # Cleanup test accounts
-      self.delete_account(client, account_data["id"])
+      # Clean up test account
+      self.delete_account(client, response_data["id"])
       
 
-   """
-   Tests account login with valid and invalid credentials.
-
-   - Expects 200 for correct username and password
-   - Expects 401 for incorrect or missing credentials
-
-   Valid logins are verified, and test accounts are cleaned up afterward.
-   """
-   @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang, status_code", [
-      ("John", "Doe", "johndoe@gmail.com", "johndoe", "johndoe", "english", status.HTTP_200_OK),    # positive test 
-      ("Timothy", "Roe", "timothyroes@gmail.com", "timothyroe", "password", "english", status.HTTP_200_OK),   # positive test 
-      (None, None, None, "johndoe", "johndoe", None, status.HTTP_401_UNAUTHORIZED),     # negative test 
-      (None, None, None, "timothyroe", "password1234", None, status.HTTP_401_UNAUTHORIZED)     # negative test 
+   @pytest.mark.parametrize("account_data, status_code", [
+      ({"f_name": "John", "l_name": "Doe", "email": "johndoe@gmail.com", "username": "johndoe", "password": "password", "primary_lang": "english"}, status.HTTP_200_OK),
+      ({"f_name": "Timothy", "l_name": "Roe", "email": "timothyroes@gmail.com", "username": "timothyroe", "password": "password", "primary_lang": "english"}, status.HTTP_200_OK),
+      ({"f_name": None, "l_name": None, "email": None, "username": "johndoe", "password": "johndoe", "primary_lang": None}, status.HTTP_401_UNAUTHORIZED),
+      ({"f_name": None, "l_name": None, "email": None, "username": "timothyroe", "password": "password1234", "primary_lang": None}, status.HTTP_401_UNAUTHORIZED),
    ])
-   def test_login_route(self, client, f_name, l_name, email, username, password, primary_lang, status_code):
-      # Skip account creation for negative test cases (invalid credentials)
-      if status_code == status.HTTP_200_OK:
-         account_data = {
-            "f_name": f_name,
-            "l_name": l_name,
-            "email": email,
-            "username": username,
-            "password": password,
-            "primary_lang": primary_lang
-         }
-         # Create account, validate status code, and get the response data
-         self.create_account(client, account_data, status.HTTP_201_CREATED)
+   def test_login_route(self, client: TestClient, account_data: dict[str, Any], status_code: int):
+      """
+      Tests account login with valid and invalid credentials.
+      Valid logins are verified, and test accounts are cleaned up afterward.
 
-      # Prep data using fixture for login endpoint
+      - Expects 200 for correct username and password
+      - Expects 401 for incorrect or missing credentials
+      """
+      # Validate and create account for positive test cases
+      if status_code == status.HTTP_200_OK:
+         validated_account: Account = Account.model_validate(account_data)
+         assert isinstance(validated_account, Account), f"Expected Account instance, got {type(validated_account)}"
+         self.create_account(client, account_data, status.HTTP_201_CREATED)
+      else:
+         with pytest.raises(ValidationError):
+            Account.model_validate(account_data)
+            
+      # Prepare login payload
       login_data = {
-         "username": username,
-         "password": password
+         "username": account_data["username"],
+         "password": account_data["password"]
       }
-      
-      # Send valid credentials to login endpoint
+
+      validated_login = LoginRequest.model_validate(login_data)
+      assert isinstance(validated_login, LoginRequest), f"Expected LoginRequest instance, got {type(validated_login)}"
+
+      # Make login request
       login_response = client.post(LOGIN_URL, json=login_data)
-      assert login_response.status_code == status_code
-      
+      assert login_response.status_code == status_code, f"Expected {status_code}, got {login_response.status_code}"
+
       if status_code == status.HTTP_401_UNAUTHORIZED:
          error_data = login_response.json()
-         assert "detail" in error_data
-         assert error_data["detail"] == "Invalid credentials"
+         assert "detail" in error_data, "Missing 'detail' in error response"
+         assert error_data["detail"] == "Invalid credentials", f"Unexpected error message: {error_data['detail']}"
          return
-      
-      # Validate account data
-      account_data = login_response.json()
-      self.validate_account(account_data, f_name, l_name, email, username, primary_lang)
-      
-      # Cleanup test accounts
-      self.delete_account(client, account_data["id"])
-      
-      
-   """
-   Tests retrieving an account by ID with both valid and invalid scenarios.
 
-   - Expects 200 for existing accounts with valid IDs
-   - Expects 404 for non-existent account IDs
+      # Validate account data from login response
+      login_response_data = login_response.json()
+      self.validate_account(
+         login_response_data,
+         account_data["f_name"],
+         account_data["l_name"],
+         account_data["email"],
+         account_data["username"],
+         account_data["primary_lang"]
+      )
 
-   Valid accounts are verified against expected values and deleted after the test.
-   """
-   @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang, status_code", [
-      ("test1", "test1", "test1@test.com", "test1", "test1", "english", status.HTTP_200_OK),   # positive test 
-      ("test2", "test2", "test2@test.com", "test2", "test2", "english", status.HTTP_200_OK),   # positive test
-      (None, None, None, None, None, None, status.HTTP_404_NOT_FOUND),   # negative test 
-      (None, None, None, None, None, None, status.HTTP_404_NOT_FOUND)    # negative test -- different int generated
+      # Clean up test account
+      self.delete_account(client, login_response_data["id"])
+   
+
+   @pytest.mark.parametrize("account_data, status_code", [
+      ({"f_name": "test1", "l_name": "test1", "email": "test1@gmail.com", "username": "test1", "password": "test1", "primary_lang": "english"}, status.HTTP_200_OK),
+      ({"f_name": "test2", "l_name": "test2", "email": "test2@gmail.com", "username": "test2", "password": "test2", "primary_lang": "english"}, status.HTTP_200_OK),
+      (None, status.HTTP_404_NOT_FOUND),  
+      (None, status.HTTP_404_NOT_FOUND)   # negative test -- different int generated
    ])
-   def test_get_account_route(self, client, f_name, l_name, email, username, password, primary_lang, status_code):
-      # Create test accounts for inputs with valid credentials
-      if status_code == status.HTTP_200_OK:
-         account_data = {
-            "f_name": f_name,
-            "l_name": l_name,
-            "email": email,
-            "username": username,
-            "password": password,
-            "primary_lang": primary_lang
-         }
-         # Create account, validate status code, and get the response data
-         account = self.create_account(client, account_data, status.HTTP_201_CREATED)
-      else:
-         # For negative test cases, test with random 
-         random_num = random.randint(-100000, -1)
-         account = {"id": random_num}
-         
-      get_account_response = client.get(f"{GET_ACCOUNT_URL}{account['id']}")
-      assert get_account_response.status_code == status_code
-      
-      if status_code == status.HTTP_404_NOT_FOUND:
-         error_data = get_account_response.json()
-         assert "detail" in error_data
-         assert error_data["detail"] == "Account not found"
-         return
-      
-      # Validate account data
-      account_data = get_account_response.json()
-      self.validate_account(account_data, f_name, l_name, email, username, primary_lang)
-      
-      # Cleanup test accounts
-      self.delete_account(client, account["id"])
-      
-      
-   """
-   Tests retrieval of all accounts and validates presence of test entries.
+   def test_get_account_route(self, client: TestClient, account_data: dict[str, Any], status_code: int):
+      """
+      Tests retrieving an account by ID with both valid and invalid scenarios.
+      Valid accounts are verified against expected values and deleted after the test.
 
-   - Creates multiple test accounts
-   - Expects 200 response from the get-all endpoint
-   - Verifies all test accounts are returned with correct values
-   - Cleans up all created test accounts after verification
-   """
-   def test_get_all_accounts_route(self, client):
+      - Expects 200 for existing accounts with valid IDs
+      - Expects 404 for non-existent account IDs
+      """
+      if status_code == status.HTTP_200_OK:
+         validated_account = Account.model_validate(account_data)
+         assert isinstance(validated_account, Account), f"Expected Account instance, got {type(validated_account)}"
+         created_account = self.create_account(client, account_data, status.HTTP_201_CREATED)
+         account_id = created_account["id"]
+      else:
+         account_id = random.randint(-100000, -1)
+
+      response = client.get(f"{GET_ACCOUNT_URL}{account_id}")
+      assert response.status_code == status_code, f"Expected status {status_code}, got {response.status_code}"
+
+      if status_code == status.HTTP_404_NOT_FOUND:
+         error_data = response.json()
+         assert "detail" in error_data, "Missing 'detail' in error response"
+         assert error_data["detail"] == "Account not found", f"Unexpected detail message: {error_data['detail']}"
+         return
+
+      fetched_account = response.json()
+      self.validate_account(
+         fetched_account,
+         account_data["f_name"],
+         account_data["l_name"],
+         account_data["email"],
+         account_data["username"],
+         account_data["primary_lang"]
+      )
+
+      self.delete_account(client, account_id)
+      
+      
+   def test_get_all_accounts_route(self, client: TestClient):
+      """
+      Tests retrieval of all accounts and validates presence of test entries.
+
+      - Creates multiple test accounts
+      - Expects 200 response from the get-all endpoint
+      - Verifies all test accounts are returned with correct values
+      - Cleans up all created test accounts after verification
+      """
       # Create multiple test accounts
       test_accounts = [
          {
@@ -208,82 +221,87 @@ class TestAccountAPI():
          self.delete_account(client, account["id"])
          
    
-   """
-   Tests account deletion with valid and invalid account IDs.
-
-   - Expects 204 when deleting an existing account
-   - Expects 404 when account ID is not found
-
-   Valid accounts are created before deletion and verified.
-   """
-   @pytest.mark.parametrize("f_name, l_name, email, username, password, primary_lang, status_code", [
-      ("test1", "test1", "test1@test.com", "test1", "test1", "english", status.HTTP_204_NO_CONTENT),
-      ("test2", "test2", "test2@test.com", "test2", "test2", "english", status.HTTP_204_NO_CONTENT),
-      (None, None, None, None, None, None, status.HTTP_404_NOT_FOUND),
-      (None, None, None, None, None, None, status.HTTP_404_NOT_FOUND)
+   @pytest.mark.parametrize("account_data, status_code", [
+      ({"f_name": "test1", "l_name": "test1", "email": "test1@test.com", "username": "test1", "password": "test1", "primary_lang": "english"}, status.HTTP_204_NO_CONTENT),
+      ({"f_name": "test2", "l_name": "test2", "email": "test2@test.com", "username": "test2", "password": "test2", "primary_lang": "english"}, status.HTTP_204_NO_CONTENT),
+      (None, status.HTTP_404_NOT_FOUND),
+      (None, status.HTTP_404_NOT_FOUND),
    ]) 
-   def test_delete_account_route(self, client, f_name, l_name, email, username, password, primary_lang, status_code):
+   def test_delete_account_route(self, client: TestClient, account_data: dict[str, Any], status_code: int):
+      """
+      Tests account deletion with valid and invalid account IDs.
+
+      - Expects 204 when deleting an existing account
+      - Expects 404 when account ID is not found
+
+      Valid accounts are created before deletion and verified.
+      """
       if status_code == status.HTTP_204_NO_CONTENT:
-         test_account = {
-            "f_name": f_name,
-            "l_name": l_name,
-            "email": email,
-            "username": username,
-            "password": password,
-            "primary_lang": primary_lang
-         }
-         # Create account, validate status code, and get the response data
-         account = self.create_account(client, test_account, status.HTTP_201_CREATED)
-         self.validate_account(account, f_name, l_name, email, username, primary_lang)
+         validated_account = Account.model_validate(account_data)
+         assert isinstance(validated_account, Account), f"Expected Account instance, got {type(validated_account)}"
+         account = self.create_account(client, account_data, status.HTTP_201_CREATED)
+         self.validate_account(
+            account, 
+            account_data["f_name"],
+            account_data["l_name"],
+            account_data["email"],
+            account_data["username"],
+            account_data["primary_lang"]
+         )
       else:
-         # For negative test cases, test with random 
+         # For negative test cases, test with random ID
          random_num = random.randint(-100000, -1)
          account = {"id": random_num}
-         
-      # Test delete account route using account id 
+
       response = client.delete(f"{DELETE_ACCOUNT_URL}{account['id']}")
-      assert response.status_code == status_code
+      assert response.status_code == status_code, f"Expected status {status_code}, got {response.status_code}"
+
+      if status_code == status.HTTP_404_NOT_FOUND:
+         error_data = response.json()
+         assert "detail" in error_data
+         assert error_data["detail"] == "Account not found"
+         return
       
    
    # <------------------>
    #   Helper functions
    # <------------------>
-   """
-   Helper function to create an account and validate the response.
+   def create_account(self, client: TestClient, account_data: dict[str, Any], status_code: int) -> dict[str, Any]:
+      """
+      Helper function to create an account and validate the response.
 
-   - Sends POST request with account data
-   - Asserts expected status code
-   - Returns created account as a JSON dict
-   """
-   def create_account(self, client, account_data, status_code):
+      - Sends POST request with account data
+      - Asserts expected status code
+      - Returns created account as a JSON dict
+      """
       response = client.post(CREATE_ACCOUNT_URL, json=account_data)
-      assert response.status_code == status_code
-      return response.json()
+      assert response.status_code == status_code, f"Expected {status_code}, got {response.status_code}"
+      return response.json() if response.status_code == status.HTTP_201_CREATED else {}
    
    
-   """
-   Helper function to verify the structure and content of an account object.
+   def validate_account(self, account: dict[str, Any], f_name: str, l_name: str, email: str, username: str, primary_lang: str) -> None:
+      """
+      Helper function to verify the structure and content of an account object.
 
-   - Asserts presence of required keys
-   - Asserts field values match expected input
-   """
-   def validate_account(self, account, f_name, l_name, email, username, primary_lang):
-      assert "id" in account
-      assert account["f_name"] == f_name
-      assert account["l_name"] == l_name
-      assert account["email"] == email
-      assert account["username"] == username
-      assert account["primary_lang"] == primary_lang
+      - Asserts presence of required keys
+      - Asserts field values match expected input
+      """
+      assert account['id'] is not None, "Expected account.id to be populated"
+      assert account['f_name'] == f_name, f"Expected f_name={f_name}, got {account['f_name']}"
+      assert account['l_name'] == l_name, f"Expected l_name={l_name}, got {account['l_name']}"
+      assert account['email'] == email, f"Expected email={email}, got {account['email']}"
+      assert account['username'] == username, f"Expected username={username}, got {account['username']}"
+      assert account['primary_lang'] == primary_lang, f"Expected primary_lang={primary_lang}, got {account['primary_lang']}"
       
 
-   """
-   Helper function to delete an account by ID.
+   def delete_account(self, client: TestClient, account_id: int) -> None:
+      """
+      Helper function to delete an account by ID.
 
-   - Asserts 204 response on successful deletion
-   - Asserts empty response body
-   """
-   def delete_account(self, client, account_id):
+      - Asserts 204 response on successful deletion
+      - Asserts empty response body
+      """
       response = client.delete(f"{DELETE_ACCOUNT_URL}{account_id}")
-      assert response.status_code == status.HTTP_204_NO_CONTENT
-      assert response.text == ""
+      assert response.status_code == status.HTTP_204_NO_CONTENT, f"Expected 204, got {response.status_code}"
+      assert response.text == "", "Expected empty response body on delete"
       

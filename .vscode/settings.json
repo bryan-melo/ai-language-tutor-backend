@@ -1,0 +1,18 @@
+{
+  "sqltools.connections": [
+    {
+      "pgOptions": {
+        "ssl": {
+          "rejectUnauthorized": true
+        }
+      },
+      "previewLimit": 50,
+      "server": "localhost",
+      "driver": "PostgreSQL",
+      "username": "ai_language_tutor_database_user",
+      "database": "ai_language_tutor_database",
+      "connectString": "postgresql://ai_language_tutor_database_user:oMpBpLxMbwP8fEsO3mobWu2ozMpSFyO1@dpg-cuu6iglds78s7396o10g-a.oregon-postgres.render.com/ai_language_tutor_database",
+      "name": "ai_language_tutor_db_connection"
+    }
+  ]
+}

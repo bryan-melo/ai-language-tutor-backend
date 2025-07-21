@@ -12,7 +12,7 @@ def create_course(course: Course, session: SessionDep) -> Course:
    session.add(course)
    session.commit()
    session.refresh(course)
-   return Course.model_validate(course)
+   return Course.model_validate(course.model_dump())
 
 
 # Route to get all courses in database
