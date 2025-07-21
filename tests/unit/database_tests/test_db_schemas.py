@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from app.database.schemas import *
+from backend.app.database.schemas import *
 
 
 class TestDatabaseSchemas:

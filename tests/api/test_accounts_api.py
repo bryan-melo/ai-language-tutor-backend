@@ -2,9 +2,9 @@ import pytest
 import random
 
 # Local file
-from main import app
-from app.database.schemas import Account
-from app.models.account_models import LoginRequest
+from backend.main import app 
+from backend.app.database.schemas import Account 
+from backend.app.models.account_models import LoginRequest
 
 from typing import Any
 from fastapi import status
@@ -22,7 +22,7 @@ DELETE_ACCOUNT_URL = "/account/delete/delete-account/"
    
 @pytest.fixture
 def client():
-   with TestClient(app) as c:
+   with TestClient(app) as c: # type: ignore
       yield c
 
 

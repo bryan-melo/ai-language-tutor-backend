@@ -1,11 +1,11 @@
 import pytest
 from sqlalchemy import inspect
-from app.database.connection import get_database_url, safe_create_engine, create_db_and_tables, get_session
+from backend.app.database.connection import get_database_url, safe_create_engine, create_db_and_tables, get_session
 
 
 class TestDatabaseConnection:
    # Test Database URL with a valid env. variable for Database
-   def test_db_url_pos(self, monkeypatch):
+   def test_db_url_pos(self, monkeypatch: pytest.MonkeyPatch):
       monkeypatch.setenv("DATABASE_URL", "sqlite://test.db")
       db_url = get_database_url()
       
@@ -13,7 +13,7 @@ class TestDatabaseConnection:
 
 
    # Test Database URL without an env. variable for Database
-   def test_db_url_neg(self, monkeypatch):
+   def test_db_url_neg(self, monkeypatch: pytest.MonkeyPatch):
       monkeypatch.delenv("DATABASE_URL", raising=False)
       
       with pytest.raises(RuntimeError) as exc_info:
@@ -23,7 +23,7 @@ class TestDatabaseConnection:
 
 
    # Test Engine connects to Database URL & database creation
-   def test_engine_pos(self, monkeypatch):
+   def test_engine_pos(self, monkeypatch: pytest.MonkeyPatch):
       monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
       
       # Create a new engine and database
@@ -38,7 +38,7 @@ class TestDatabaseConnection:
 
 
    # Test Engine failure to connect to Database URL with invalid URL
-   def test_engine_neg(self, monkeypatch):
+   def test_engine_neg(self, monkeypatch: pytest.MonkeyPatch):
       monkeypatch.setenv("DATABASE_URL", "")
       
       with pytest.raises(RuntimeError) as exc_info:
@@ -48,7 +48,7 @@ class TestDatabaseConnection:
 
 
    # Test session with a valid engine 
-   def test_get_session_pos(self, monkeypatch):
+   def test_get_session_pos(self, monkeypatch: pytest.MonkeyPatch):
       monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
       
       engine = safe_create_engine()
@@ -66,7 +66,7 @@ class TestDatabaseConnection:
       
       
    # Test session with invalid engine
-   def test_get_session_neg(self, monkeypatch):
+   def test_get_session_neg(self, monkeypatch: pytest.MonkeyPatch):
       monkeypatch.setenv("DATABASE_URL", "")
       
       with pytest.raises(RuntimeError) as exc_info:

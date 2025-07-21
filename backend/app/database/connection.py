@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from fastapi import Depends
 from typing import Annotated
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.engine import Engine
+from typing import Optional
 
 # Load environment variables
 load_dotenv()
@@ -28,9 +30,7 @@ def safe_create_engine():
 # Import database models
 from app.database.schemas import *
 
-
-# Create Database & tables
-def create_db_and_tables(custom_engine=None):
+def create_db_and_tables(custom_engine: Optional[Engine] = None):
     try:
         SQLModel.metadata.create_all(custom_engine or safe_create_engine())
     except Exception as e:

@@ -1,12 +1,12 @@
 import pytest
+from typing import Any
 from pydantic import ValidationError
-from app.models.account_models import AccountRead, LoginRequest
+from backend.app.models.account_models import AccountRead, LoginRequest
 
 
 class TestAccountModels:
-   # Test AccountRead model for valid instance
    def test_account_read_valid(self):
-      data = {
+      data: dict[str, Any] = {
          "id": 1,
          "f_name": "Bryan",
          "l_name": "Melo",

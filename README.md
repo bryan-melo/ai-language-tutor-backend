@@ -40,7 +40,7 @@ source venv/bin/activate
 
 ---
 
-## Install Dependencies
+## Install Dependencies 
 Ensure all required dependencies are installed within the virtual environment:
 ```bash
 pip install -r requirements.txt
@@ -63,6 +63,7 @@ Before running the backend, ensure your virtual environment is activated.
 
 ### Start the FastAPI Server
 ```bash
+cd backend
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 

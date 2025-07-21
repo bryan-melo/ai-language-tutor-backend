@@ -51,4 +51,4 @@ secrets.json
 .env.local
 
 # Pytest
-.pytest_cache
+.pytest_cache/
