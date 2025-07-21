@@ -12,7 +12,7 @@ class TestAccountModels:
          "l_name": "Melo",
          "email": "bryan@test.com",
          "username": "Tester",
-         "primary_lang": "English"
+         "primary_lang": "english"
       }
       model = AccountRead(**data)
       
@@ -29,7 +29,7 @@ class TestAccountModels:
             # Missing 'l_name' field
             "email": "bryan@test.com",
             "username": "Tester",
-            "primary_lang": "English"
+            "primary_lang": "english"
       })
          
    
@@ -42,7 +42,7 @@ class TestAccountModels:
             "l_name": "Melo",
             "email": "bryan@test.com",
             "username": "Tester",
-            "primary_lang": "English"
+            "primary_lang": "english"
          })
          
    
