@@ -39,3 +39,16 @@ def validate_and_create_instance(
    response = client.post(url, json=data)
    assert response.status_code == status_code, f"Expected {status_code}, got {response.status_code}"
    return response.json() if response.status_code == status.HTTP_201_CREATED else {}
+
+
+def delete_instance(client: TestClient, instance_id: int, url: str) -> None:
+   """
+   Helper function to delete an account by ID.
+
+   - Asserts 204 response on successful deletion
+   - Asserts empty response body
+   """
+   response = client.delete(f"{url}{instance_id}")
+   assert response.status_code == status.HTTP_204_NO_CONTENT, f"Expected 204, got {response.status_code}"
+   assert response.text == "", "Expected empty response body on delete"
+   

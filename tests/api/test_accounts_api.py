@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 from backend.main import app 
 from backend.app.models.account_models import AccountCreate
 from backend.app.models.account_models import LoginRequest
-from .utils import validate_and_create_instance
+from .utils import validate_and_create_instance, delete_instance
 
 # API URLS constants
 CREATE_ACCOUNT_URL = "/account/create/create-account"
@@ -61,7 +61,7 @@ class TestAccountAPI():
       )
             
       # Clean up test account
-      self.delete_account(client, response_data["id"])
+      delete_instance(client, response_data["id"], DELETE_ACCOUNT_URL)
 
 
    @pytest.mark.parametrize("account_data, status_code", [
@@ -112,7 +112,7 @@ class TestAccountAPI():
       )
 
       # Clean up test account
-      self.delete_account(client, login_response_data["id"])
+      delete_instance(client, login_response_data["id"], DELETE_ACCOUNT_URL)
    
 
    @pytest.mark.parametrize("account_data, status_code", [
@@ -154,7 +154,7 @@ class TestAccountAPI():
          account_data["primary_lang"]
       )
 
-      self.delete_account(client, account_id)
+      delete_instance(client, account_id, DELETE_ACCOUNT_URL)
       
       
    def test_get_all_accounts_route(self, client: TestClient):
@@ -201,7 +201,7 @@ class TestAccountAPI():
 
       # Cleanup test accounts
       for account in test_entries:
-         self.delete_account(client, account["id"])
+         delete_instance(client, account["id"], DELETE_ACCOUNT_URL)
          
    
    @pytest.mark.parametrize("account_data, status_code", [
@@ -260,16 +260,3 @@ class TestAccountAPI():
       assert account['email'] == email, f"Expected email={email}, got {account['email']}"
       assert account['username'] == username, f"Expected username={username}, got {account['username']}"
       assert account['primary_lang'] == primary_lang, f"Expected primary_lang={primary_lang}, got {account['primary_lang']}"
-      
-
-   def delete_account(self, client: TestClient, account_id: int) -> None:
-      """
-      Helper function to delete an account by ID.
-
-      - Asserts 204 response on successful deletion
-      - Asserts empty response body
-      """
-      response = client.delete(f"{DELETE_ACCOUNT_URL}{account_id}")
-      assert response.status_code == status.HTTP_204_NO_CONTENT, f"Expected 204, got {response.status_code}"
-      assert response.text == "", "Expected empty response body on delete"
-      
