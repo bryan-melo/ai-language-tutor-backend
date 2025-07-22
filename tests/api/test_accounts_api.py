@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 
 # Local file
 from backend.main import app 
-from backend.app.database.schemas import Account 
+from backend.app.models.account_models import AccountCreate
 from backend.app.models.account_models import LoginRequest
 from .utils import validate_and_create_instance
 
@@ -30,8 +30,8 @@ class TestAccountAPI():
    #   Account API Endpoint Tests
    # <---------------------------->
    @pytest.mark.parametrize("account_data, status_code", [
-      ({"f_name": "John", "l_name": "Doe", "email": "johndoe@gmail.com", "username": "johndoe", "password": "password", "primary_lang": "english"}, status.HTTP_201_CREATED),
-      ({"f_name": "Peter", "l_name": "Jackson", "email": "peterjackson@gmail.com", "username": "peterjackson", "password": "password", "primary_lang": "english"}, status.HTTP_201_CREATED),
+      ({"f_name": "John", "l_name": "Doe", "email": "johndoe@gmail.com", "username": "johndoe", "password": "password", "primary_lang": "English"}, status.HTTP_201_CREATED),
+      ({"f_name": "Peter", "l_name": "Jackson", "email": "peterjackson@gmail.com", "username": "peterjackson", "password": "password", "primary_lang": "English"}, status.HTTP_201_CREATED),
       ({"f_name": "Bobby", "l_name": "Matthew", "email": "bobbymatthrew@gmail.com", "username": "Bobby", "password": "Bobby", "primary_lang": "japanese"}, status.HTTP_422_UNPROCESSABLE_ENTITY),
       ({"f_name": None, "l_name": None, "email": None, "username": None, "password": None, "primary_lang": None}, status.HTTP_422_UNPROCESSABLE_ENTITY),
    ])
@@ -44,7 +44,7 @@ class TestAccountAPI():
       - Expects 422 for missing or invalid fields
       """
       # Validate input data using Pydantic model before sending request
-      response_data = validate_and_create_instance(client, Account, account_data, status_code, CREATE_ACCOUNT_URL)
+      response_data = validate_and_create_instance(client, AccountCreate, account_data, status_code, CREATE_ACCOUNT_URL)
       
       # End test early for expected failure
       if status_code == status.HTTP_422_UNPROCESSABLE_ENTITY or not response_data:
@@ -65,8 +65,8 @@ class TestAccountAPI():
 
 
    @pytest.mark.parametrize("account_data, status_code", [
-      ({"f_name": "John", "l_name": "Doe", "email": "johndoe@gmail.com", "username": "johndoe", "password": "password", "primary_lang": "english"}, status.HTTP_200_OK),
-      ({"f_name": "Timothy", "l_name": "Roe", "email": "timothyroes@gmail.com", "username": "timothyroe", "password": "password", "primary_lang": "english"}, status.HTTP_200_OK),
+      ({"f_name": "John", "l_name": "Doe", "email": "johndoe@gmail.com", "username": "johndoe", "password": "password", "primary_lang": "English"}, status.HTTP_200_OK),
+      ({"f_name": "Timothy", "l_name": "Roe", "email": "timothyroes@gmail.com", "username": "timothyroe", "password": "password", "primary_lang": "English"}, status.HTTP_200_OK),
       ({"f_name": None, "l_name": None, "email": None, "username": "johndoe", "password": "johndoe", "primary_lang": None}, status.HTTP_401_UNAUTHORIZED),
       ({"f_name": None, "l_name": None, "email": None, "username": "timothyroe", "password": "password1234", "primary_lang": None}, status.HTTP_401_UNAUTHORIZED),
    ])
@@ -79,7 +79,7 @@ class TestAccountAPI():
       - Expects 401 for incorrect or missing credentials
       """
       if status_code == status.HTTP_200_OK:
-         validate_and_create_instance(client, Account, account_data, status.HTTP_201_CREATED, CREATE_ACCOUNT_URL)
+         _ = validate_and_create_instance(client, AccountCreate, account_data, status.HTTP_201_CREATED, CREATE_ACCOUNT_URL)
             
       # Prepare login payload
       login_data = {
@@ -116,8 +116,8 @@ class TestAccountAPI():
    
 
    @pytest.mark.parametrize("account_data, status_code", [
-      ({"f_name": "test1", "l_name": "test1", "email": "test1@gmail.com", "username": "test1", "password": "test1", "primary_lang": "english"}, status.HTTP_200_OK),
-      ({"f_name": "test2", "l_name": "test2", "email": "test2@gmail.com", "username": "test2", "password": "test2", "primary_lang": "english"}, status.HTTP_200_OK),
+      ({"f_name": "test1", "l_name": "test1", "email": "test1@gmail.com", "username": "test1", "password": "test1", "primary_lang": "English"}, status.HTTP_200_OK),
+      ({"f_name": "test2", "l_name": "test2", "email": "test2@gmail.com", "username": "test2", "password": "test2", "primary_lang": "English"}, status.HTTP_200_OK),
       (None, status.HTTP_404_NOT_FOUND),  
       (None, status.HTTP_404_NOT_FOUND)   # negative test -- different int generated
    ])
@@ -130,7 +130,7 @@ class TestAccountAPI():
       - Expects 404 for non-existent account IDs
       """
       if status_code == status.HTTP_200_OK:
-         created_account = validate_and_create_instance(client, Account, account_data, status.HTTP_201_CREATED, CREATE_ACCOUNT_URL)
+         created_account = validate_and_create_instance(client, AccountCreate, account_data, status.HTTP_201_CREATED, CREATE_ACCOUNT_URL)
          account_id = created_account["id"]
       else:
          account_id = random.randint(-100000, -1)
@@ -174,14 +174,14 @@ class TestAccountAPI():
                "email": f"test{i}@test.com",
                "username": f"test{i}",
                "password": f"test{i}",
-               "primary_lang": "english"
+               "primary_lang": "English"
          }
          for i in range(1, 5)
       ]
 
       # Create test accounts in database and validate instance
       for account_data in test_accounts:
-         validate_and_create_instance(client, Account, account_data, status.HTTP_201_CREATED, CREATE_ACCOUNT_URL)
+         _ = validate_and_create_instance(client, AccountCreate, account_data, status.HTTP_201_CREATED, CREATE_ACCOUNT_URL)
 
       # Fetch all accounts
       response = client.get(GET_ALL_ACCOUNTS_URL)
@@ -205,8 +205,8 @@ class TestAccountAPI():
          
    
    @pytest.mark.parametrize("account_data, status_code", [
-      ({"f_name": "test1", "l_name": "test1", "email": "test1@test.com", "username": "test1", "password": "test1", "primary_lang": "english"}, status.HTTP_204_NO_CONTENT),
-      ({"f_name": "test2", "l_name": "test2", "email": "test2@test.com", "username": "test2", "password": "test2", "primary_lang": "english"}, status.HTTP_204_NO_CONTENT),
+      ({"f_name": "test1", "l_name": "test1", "email": "test1@test.com", "username": "test1", "password": "test1", "primary_lang": "English"}, status.HTTP_204_NO_CONTENT),
+      ({"f_name": "test2", "l_name": "test2", "email": "test2@test.com", "username": "test2", "password": "test2", "primary_lang": "English"}, status.HTTP_204_NO_CONTENT),
       (None, status.HTTP_404_NOT_FOUND),
       (None, status.HTTP_404_NOT_FOUND),
    ]) 
@@ -220,7 +220,7 @@ class TestAccountAPI():
       Valid accounts are created before deletion and verified.
       """
       if status_code == status.HTTP_204_NO_CONTENT:
-         account = validate_and_create_instance(client, Account, account_data, status.HTTP_201_CREATED, CREATE_ACCOUNT_URL)
+         account = validate_and_create_instance(client, AccountCreate, account_data, status.HTTP_201_CREATED, CREATE_ACCOUNT_URL)
          self.validate_account(
             account, 
             account_data["f_name"],

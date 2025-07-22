@@ -20,7 +20,20 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 # Route to create an account
 @router.post("/create/create-account", response_model=AccountRead, status_code=status.HTTP_201_CREATED)
 def create_account(account: AccountCreate, session: SessionDep) -> AccountRead:
-    db_account = Account(**account.model_dump())
+    # Check for existing email or username
+    existing = session.exec(
+        select(Account).where(
+            (Account.email == account.email) | (Account.username == account.username)
+        )
+    ).first()
+
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="An account with that email or username already exists."
+        )
+
+    db_account = Account(**account.model_dump(mode="json"))
     db_account.password = hash_password(account.password)
     session.add(db_account)
     session.commit()
