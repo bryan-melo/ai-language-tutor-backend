@@ -1,16 +1,15 @@
 import pytest
 import random
 
+from typing import Any
+from fastapi import status
+from fastapi.testclient import TestClient
+
 # Local file
 from backend.main import app 
 from backend.app.database.schemas import Account 
 from backend.app.models.account_models import LoginRequest
-
-from typing import Any
-from fastapi import status
-from pydantic import ValidationError
-from fastapi.testclient import TestClient
-
+from .utils import validate_and_create_instance
 
 # API URLS constants
 CREATE_ACCOUNT_URL = "/account/create/create-account"
@@ -19,7 +18,7 @@ GET_ALL_ACCOUNTS_URL = "/account/get-all-accounts"
 GET_ACCOUNT_URL = "/account/get-account/"
 DELETE_ACCOUNT_URL = "/account/delete/delete-account/"
 
-   
+
 @pytest.fixture
 def client():
    with TestClient(app) as c:
@@ -45,15 +44,7 @@ class TestAccountAPI():
       - Expects 422 for missing or invalid fields
       """
       # Validate input data using Pydantic model before sending request
-      if status_code == status.HTTP_201_CREATED:
-         validated_account = Account.model_validate(account_data)
-         assert isinstance(validated_account, Account), f"Expected Account instance, got {type(validated_account)}"
-      else:
-         with pytest.raises(ValidationError):
-            Account.model_validate(account_data)
-            
-      # Send request and assert status
-      response_data = self.create_account(client, account_data, status_code)
+      response_data = validate_and_create_instance(client, Account, account_data, status_code, CREATE_ACCOUNT_URL)
       
       # End test early for expected failure
       if status_code == status.HTTP_422_UNPROCESSABLE_ENTITY or not response_data:
@@ -87,14 +78,8 @@ class TestAccountAPI():
       - Expects 200 for correct username and password
       - Expects 401 for incorrect or missing credentials
       """
-      # Validate and create account for positive test cases
       if status_code == status.HTTP_200_OK:
-         validated_account: Account = Account.model_validate(account_data)
-         assert isinstance(validated_account, Account), f"Expected Account instance, got {type(validated_account)}"
-         self.create_account(client, account_data, status.HTTP_201_CREATED)
-      else:
-         with pytest.raises(ValidationError):
-            Account.model_validate(account_data)
+         validate_and_create_instance(client, Account, account_data, status.HTTP_201_CREATED, CREATE_ACCOUNT_URL)
             
       # Prepare login payload
       login_data = {
@@ -145,9 +130,7 @@ class TestAccountAPI():
       - Expects 404 for non-existent account IDs
       """
       if status_code == status.HTTP_200_OK:
-         validated_account = Account.model_validate(account_data)
-         assert isinstance(validated_account, Account), f"Expected Account instance, got {type(validated_account)}"
-         created_account = self.create_account(client, account_data, status.HTTP_201_CREATED)
+         created_account = validate_and_create_instance(client, Account, account_data, status.HTTP_201_CREATED, CREATE_ACCOUNT_URL)
          account_id = created_account["id"]
       else:
          account_id = random.randint(-100000, -1)
@@ -196,9 +179,9 @@ class TestAccountAPI():
          for i in range(1, 5)
       ]
 
-      for account in test_accounts:
-         # Create account, validate status code, and get the response data
-         self.create_account(client, account, status.HTTP_201_CREATED)
+      # Create test accounts in database and validate instance
+      for account_data in test_accounts:
+         validate_and_create_instance(client, Account, account_data, status.HTTP_201_CREATED, CREATE_ACCOUNT_URL)
 
       # Fetch all accounts
       response = client.get(GET_ALL_ACCOUNTS_URL)
@@ -237,9 +220,7 @@ class TestAccountAPI():
       Valid accounts are created before deletion and verified.
       """
       if status_code == status.HTTP_204_NO_CONTENT:
-         validated_account = Account.model_validate(account_data)
-         assert isinstance(validated_account, Account), f"Expected Account instance, got {type(validated_account)}"
-         account = self.create_account(client, account_data, status.HTTP_201_CREATED)
+         account = validate_and_create_instance(client, Account, account_data, status.HTTP_201_CREATED, CREATE_ACCOUNT_URL)
          self.validate_account(
             account, 
             account_data["f_name"],
@@ -262,23 +243,10 @@ class TestAccountAPI():
          assert error_data["detail"] == "Account not found"
          return
       
-   
+      
    # <------------------>
    #   Helper functions
-   # <------------------>
-   def create_account(self, client: TestClient, account_data: dict[str, Any], status_code: int) -> dict[str, Any]:
-      """
-      Helper function to create an account and validate the response.
-
-      - Sends POST request with account data
-      - Asserts expected status code
-      - Returns created account as a JSON dict
-      """
-      response = client.post(CREATE_ACCOUNT_URL, json=account_data)
-      assert response.status_code == status_code, f"Expected {status_code}, got {response.status_code}"
-      return response.json() if response.status_code == status.HTTP_201_CREATED else {}
-   
-   
+   # <------------------>   
    def validate_account(self, account: dict[str, Any], f_name: str, l_name: str, email: str, username: str, primary_lang: str) -> None:
       """
       Helper function to verify the structure and content of an account object.
