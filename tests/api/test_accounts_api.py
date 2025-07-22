@@ -62,7 +62,7 @@ class TestAccountAPI():
             
       # Clean up test account
       self.delete_account(client, response_data["id"])
-      
+
 
    @pytest.mark.parametrize("account_data, status_code", [
       ({"f_name": "John", "l_name": "Doe", "email": "johndoe@gmail.com", "username": "johndoe", "password": "password", "primary_lang": "english"}, status.HTTP_200_OK),
