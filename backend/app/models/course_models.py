@@ -27,6 +27,7 @@ class CourseCategories(str, Enum):
 class CourseCreate(BaseModel):
    title: str
    author: str
+   description: str
    num_of_lessons: int
    category: CourseCategories
    difficulty: CourseDifficulty
@@ -36,6 +37,7 @@ class CourseResponse(BaseModel):
    id: int
    title: str
    author: str
+   description: str
    num_of_lessons: int
    category: CourseCategories
    difficulty: CourseDifficulty

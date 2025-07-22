@@ -34,19 +34,17 @@ def create_course(course: CourseCreate, session: SessionDep) -> Course:
 
 
 # Route to get all courses in database
-@router.get("/get-all-courses", response_model=list[Course])
+@router.get("/get-all-courses", response_model=list[Course], status_code=status.HTTP_200_OK)
 def get_all_courses(session: SessionDep) -> list[Course]:
-   statement = select(Course)
-   courses = session.exec(statement).all()
-   
-   if not courses:
-      raise HTTPException(status_code=404, detail="No courses found")
+   courses = session.exec(
+      select(Course)
+   )
 
-   return [Course.model_validate(course.model_dump()) for course in courses]
+   return [Course.model_validate(course) for course in courses]
 
 
 # Route to get a course using course id
-@router.get("/get-course/{course_id}", response_model=Course)
+@router.get("/get-course/{course_id}", response_model=Course, status_code=status.HTTP_200_OK)
 def get_course(course_id: int, session: SessionDep) -> Course:
    course = session.get(Course, course_id)
    if not course:
@@ -55,11 +53,11 @@ def get_course(course_id: int, session: SessionDep) -> Course:
 
 
 # Route to delete an existing course
-@router.delete("/delete/delete-course/{course_id}")
+@router.delete("/delete/delete-course/{course_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_course(course_id: int, session: SessionDep):
    course = session.get(Course, course_id)
    if not course:
       raise HTTPException(status_code=404, detail="Course not found")
    session.delete(course)
    session.commit()
-   return {"ok": True}
+   return
