@@ -51,6 +51,10 @@ class TestCourseAPI():
       # Clean up test courses
       delete_instance(client, response_data["id"], DELETE_COURSE_URL)
       
+      
+   def test_get_all_courses_route(self, client: TestClient):
+      pass
+      
 
    # <------------------>
    #   Helper functions
