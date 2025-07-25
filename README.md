@@ -62,10 +62,11 @@ Before running the backend, ensure your virtual environment is activated.
   ```
 
 ### Start the FastAPI Server
+In the root directory:
 ```bash
 PYTHONPATH=backend uvicorn main:app --host 0.0.0.0 --port 8000 --reload 
 ```
-or
+Or in the backend directory:
 ```bash
 cd backend
 uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload

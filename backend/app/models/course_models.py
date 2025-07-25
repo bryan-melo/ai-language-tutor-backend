@@ -8,12 +8,12 @@ class SupportedLanguages(str, Enum):
 
 
 class CourseDifficulty(str, Enum):
-   easy = "Beginner"
-   medium = "Intermediate"
+   beginner = "Beginner"
+   intermediate = "Intermediate"
    advanced = "Advanced"
    
    def __str__(self):
-        return self.value
+      return self.value
      
      
 class CourseCategories(str, Enum):
@@ -31,6 +31,8 @@ class CourseCreate(BaseModel):
    num_of_lessons: int
    category: CourseCategories
    difficulty: CourseDifficulty
+   
+   model_config = ConfigDict(from_attributes=True)
 
 
 class CourseResponse(BaseModel):

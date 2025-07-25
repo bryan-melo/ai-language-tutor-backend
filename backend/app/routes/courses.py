@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from app.database.connection import SessionDep
 from app.database.schemas import Course
-from app.models.course_models import CourseCreate
+from app.models.course_models import CourseCreate, CourseResponse
 
 
 
@@ -34,7 +34,7 @@ def create_course(course: CourseCreate, session: SessionDep) -> Course:
 
 
 # Route to get all courses in database
-@router.get("/get-all-courses", response_model=list[Course], status_code=status.HTTP_200_OK)
+@router.get("/get-all-courses", response_model=list[CourseResponse], status_code=status.HTTP_200_OK)
 def get_all_courses(session: SessionDep) -> list[Course]:
    courses = session.exec(
       select(Course)

@@ -49,7 +49,7 @@ class TestAccountAPI():
       # End test early for expected failure
       if status_code == status.HTTP_422_UNPROCESSABLE_ENTITY or not response_data:
          return
-      
+       
       # Validate fields match expected values
       self.validate_account(
          response_data,    

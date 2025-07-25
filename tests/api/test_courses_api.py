@@ -53,12 +53,16 @@ class TestCourseAPI():
       
       
    def test_get_all_courses_route(self, client: TestClient):
-      pass
+      response_data = client.get(GET_ALL_COURSES_URL)
+      
+      assert response_data.status_code == status.HTTP_200_OK
+      
+      
       
 
    # <------------------>
    #   Helper functions
-   # <------------------>
+   # <------------------> 
    def validate_course(self, course: dict[str, Any], title: str, author: str, description: str, num_of_lessons: int, category: str, difficulty: str):
       assert course['id'] is not None, "Expected course.id to be populated"
       assert course["title"] == title, f"Expected title={title}, got {course['title']}"
