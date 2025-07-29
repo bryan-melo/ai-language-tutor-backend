@@ -28,7 +28,8 @@ class TestCourseAPI():
    #   Course API Endpoint Tests
    # <---------------------------->
    @pytest.mark.parametrize("course_data, status_code", [
-      ({"title": "test_course_1", "author": "test1", "description": "Test course", "num_of_lessons": 1, "category": "Pronunciation & Phonetics", "difficulty": "Beginner"}, status.HTTP_201_CREATED)
+      ({"title": "test_course_1", "author": "test1", "description": "Test course", "num_of_lessons": 1, "category": "Pronunciation & Phonetics", "difficulty": "Beginner"}, status.HTTP_201_CREATED),
+      ({"title": "test_course_2", "author": "test2", "description": "Test course", "num_of_lessons": 10, "category": "Pronunciation & Phonetics", "difficulty": "Advanced"}, status.HTTP_201_CREATED)
    ])
    def test_create_course_route(self, client: TestClient, course_data: dict[str, Any], status_code: int):
       # Validate input data using Pydantic model before sending request
