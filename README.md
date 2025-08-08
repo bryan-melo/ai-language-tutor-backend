@@ -21,7 +21,7 @@ Follow the steps below to create and activate the environment. If the environmen
 
 ## Create the Virtual Environment
 ```bash
-python -m venv venv
+python3 -m venv venv
 ```
 
 ---
@@ -43,7 +43,7 @@ source venv/bin/activate
 ## Install Dependencies 
 Ensure all required dependencies are installed within the virtual environment:
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ---
