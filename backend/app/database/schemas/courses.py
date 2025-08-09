@@ -1,7 +1,7 @@
 from sqlmodel import Field, SQLModel, Column, Enum as SqlEnum
 from typing import List, Optional
 from sqlalchemy import Column, JSON
-from backend.app.models.course_models import CourseDifficulty
+from backend.app.models.course_models import CourseDifficulty, CourseCategories
 
 
 # Course Schema
@@ -25,12 +25,13 @@ class Course(SQLModel, table=True):
    num_of_lessons: int = Field(
       description="The number of lessons included in the course"
    )
-   category: str = Field(
+   category: CourseCategories = Field(
+      sa_column=Column(SqlEnum(CourseCategories)),
       description="Category to which the course belongs to (e.g, Pronunciation & Phonetics, Vocabulary, etc.)"
    )
-   difficulty: str = Field(
+   difficulty: CourseDifficulty = Field(
       sa_column=Column(SqlEnum(CourseDifficulty)),
-      description="Difficulty of a course ranging from Beginner, Intermediate, and Expert"
+      description="Difficulty of a course ranging from Beginner, Intermediate, and Advanced"
    )
    
    

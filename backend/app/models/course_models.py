@@ -3,17 +3,14 @@ from enum import Enum
 
 
 class SupportedLanguages(str, Enum):
-   english = "English"
-   spanish = "Spanish"
+   English = "English"
+   Spanish = "Spanish"
 
 
 class CourseDifficulty(str, Enum):
-   beginner = "Beginner"
-   intermediate = "Intermediate"
-   advanced = "Advanced"
-   
-   def __str__(self):
-      return self.value
+   Beginner = "Beginner"
+   Intermediate = "Intermediate"
+   Advanced = "Advanced"
      
      
 class CourseCategories(str, Enum):
