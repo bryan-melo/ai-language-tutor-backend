@@ -22,7 +22,7 @@ class CourseCategories(str, Enum):
 
 
 class CourseCreate(BaseModel):
-   title: str
+   title: str 
    author: str
    description: str
    num_of_lessons: int
