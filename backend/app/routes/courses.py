@@ -5,10 +5,7 @@ from app.database.connection import SessionDep
 from app.database.schemas import Course
 from app.models.course_models import CourseCreate, CourseResponse
 
-
-
 router = APIRouter()
-
 
 # Route to create a course
 @router.post("/create/create-course", response_model=Course, status_code=status.HTTP_201_CREATED)
